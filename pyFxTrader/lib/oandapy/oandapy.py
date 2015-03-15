@@ -349,4 +349,3 @@ class OandaError(Exception):
         msg = "OANDA API returned error code %s (%s) " % (error_response['code'], error_response['message'])
 
         super(OandaError, self).__init__(msg)
-        

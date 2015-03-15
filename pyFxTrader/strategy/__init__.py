@@ -1,13 +1,12 @@
-class Strategy:
+class Strategy(object):
     TIMEFRAMES = []  # e.g. ['M30', 'H2']
 
-    def __init__(self, instrument, feeds):
+    def __init__(self, instrument):
         self.instrument = instrument
-        self.feeds = feeds
         if not self.TIMEFRAMES:
             raise ValueError('Please define TIMEFRAMES variable.')
 
-    def start(self, engine):
+    def start(self):
         """Called on strategy start."""
         raise NotImplementedError()
 

@@ -1,8 +1,9 @@
-import logging
 from . import Strategy
 
 
 class SmaStrategy(Strategy):
     STRATEGY_NAME = 'SmaCrossingStrategy'
+    TIMEFRAMES = ['H1', 'H2']
 
-    pass
+    def start(self):
+        pass

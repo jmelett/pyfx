@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import json
 import time
+
+from logbook import Logger
 
 from etc import settings
 from broker import Broker
-from datafeed import DataFeed
 from strategy.sma_example import SmaStrategy
 
+log = Logger('pyFxTrader')
 
-class TradeController:
+
+class TradeController(object):
     # Change this to your flavour
     DEFAULT_STRATEGY = SmaStrategy
 
@@ -22,53 +24,46 @@ class TradeController:
     instruments = []
 
 
-    def __init__(self, mode=None, input_file=None, instruments=None):
+    def __init__(self, mode=None, instruments=None):
         self.environment = settings.DEFAULT_ENVIRONMENT
         self.access_token = settings.ACCESS_TOKEN
-        self.instruments = instruments
         self.mode = mode
+        # Make sure no empty instruments are in our list
+        self.instruments = [x for x in instruments.split(',') if x]
 
 
-    def start(self, instruments):
+    def start(self):
         self._strategies = strategies = {}
-
-        # Initialize the strategy for all currency pairs
+        log.info('Starting TradeController')
         # TODO Implement multi-instrument/strategy functionality
+        # Initialize the strategy for all currency pairs
         for currency_pair in self.instruments:
             if not currency_pair in strategies:
-                # Create datafeed(s)
-                feed_list = []
-                for tf in self.DEFAULT_STRATEGY.TIMEFRAMES:
-                    feed = DataFeed(timeframe=tf, mode=self.mode)
-                    feed_list.append(feed)
-
-                # And then the strategy object
                 strategies[currency_pair] = self.DEFAULT_STRATEGY(
-                    instrument=currency_pair,
-                    feeds=feed_list
-                )
-                print "[+] Loading strategy for: %s" % currency_pair
+                    instrument=currency_pair)
+                log.info('Loading strategy for: %s' % currency_pair)
                 strategies[currency_pair].start()
             else:
                 raise ValueError('Please make sure that instruments are used '
                                  'only once (%s)' % currency_pair)
 
-            # Now iterate every 15 seconds through all strategy objects and
-            # check if a new tick arrived; if yes, recalculate
-            broker = Broker(mode=self.mode)
-            while True:
-                # TODO
-                # 1. Check account balance, make sure nothing changed
-                #    dramatically, else red_alert()!
-                # 2. Check all strategy objects for a buy/sell signal
-                # 3. Calculate position size and place order)
-                # 4. Check if order was placed and/or others were cancelled
-                # (for whatever reason)
-                # 5. Send E-Mail or SMS to user in case of action required
-                print broker.get_account_balance()
-                for s in strategies:
-                    print s
-                time.sleep(15)
+        broker = Broker(mode=self.mode)
+        while True:
+            log.info(
+                u'Current balance: {0:f}'.format(broker.get_account_balance()))
+            # Iterate every tick through all strategy objects and
+            # recalculate if required
+            # TODO
+            # 1. Check account balance, make sure nothing changed
+            # dramatically, else red_alert()!
+            # 2. Check all strategy objects for a buy/sell signal
+            # 3. Calculate position size and place order)
+            # 4. Check if order was placed and/or others were cancelled
+            # (for whatever reason)
+            # 5. Send E-Mail or SMS to user in case of action required
+            for s in strategies:
+                print s
+            time.sleep(5)
 
 
     def _start_backtest(self, instruments, input_file):
@@ -91,8 +86,3 @@ class TradeController:
 
     def disconnect(self):
         raise NotImplementedError()
-        # TODO Since feeds are attached to a strategy object, the disconnect
-        # should happen via the strategy object, e.g.
-        # strategies['EURCHF'].disconnect()
-        # for strat in self._strategies:
-        #     strat.disconnect()
