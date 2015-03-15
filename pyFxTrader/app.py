@@ -21,17 +21,29 @@ if __name__ == '__main__':
         description='Algorithmic trading tool'
     )
     parser.add_argument(
-        '-c', '--cur',
+        '-c',
+        dest='currencies',
+        default='EUR_USD,USD_CHF',
         help='currency pairs, e.g. EUR_USD,USD_CHF',
-        default='EUR_USD',
     )
     parser.add_argument(
-        '-m', help='run mode', choices={'live', 'backtest'}, default='backtest'
+        '-m',
+        dest='mode',
+        choices={'live', 'backtest'},
+        default='backtest',
+        help='run mode',
     )
+    parser.add_argument(
+        '-v', '--verbose',
+        dest='verbosity',
+        default=0,
+        action='count',
+        help='increase verbosity')
 
     args = parser.parse_args()
+
     controller = TradeController(
-        mode=args.m,
-        instruments=args.cur,
+        mode=args.mode,
+        instruments=args.currencies,
     )
     controller.start()
