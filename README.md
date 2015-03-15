@@ -1,4 +1,4 @@
-FXkaschte
+pyFxTrader
 =========
 
 # Scope
