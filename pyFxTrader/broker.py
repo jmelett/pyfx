@@ -10,9 +10,12 @@ class Broker(object):
     _current_balance = 0.00
 
     mode = None
+    api = None
 
-    def __init__(self, mode, initial_balance=10000.00):
+    def __init__(self, mode, api, initial_balance=10000.00):
         self.mode = mode
+        self.api = api
+
         log.debug(u'Broker mode: {0:s}'.format(self.mode))
         if self.mode == 'backtest':
             self._initial_balance = initial_balance

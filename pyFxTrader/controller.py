@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-
+import json
 import time
 
 from logbook import Logger
 
 from etc import settings
 from broker import Broker
+from lib.oandapy import oandapy
 from strategy.sma_example import SmaStrategy
+from datafeed import MyStreamer
+
 
 log = Logger('pyFxTrader')
 
@@ -27,6 +30,7 @@ class TradeController(object):
     def __init__(self, mode=None, instruments=None):
         self.environment = settings.DEFAULT_ENVIRONMENT
         self.access_token = settings.ACCESS_TOKEN
+        self.account_id = settings.ACCOUNT_ID
         self.mode = mode
         # Make sure no empty instruments are in our list
         self.instruments = [x for x in instruments.split(',') if x]
@@ -47,7 +51,9 @@ class TradeController(object):
                 raise ValueError('Please make sure that instruments are used '
                                  'only once (%s)' % currency_pair)
 
-        broker = Broker(mode=self.mode)
+        oanda_api = oandapy.API(environment=self.environment,
+                            access_token=self.access_token)
+        broker = Broker(mode=self.mode, api=oanda_api)
         while True:
             log.info(
                 u'Current balance: {0:f}'.format(broker.get_account_balance()))
@@ -61,8 +67,17 @@ class TradeController(object):
             # 4. Check if order was placed and/or others were cancelled
             # (for whatever reason)
             # 5. Send E-Mail or SMS to user in case of action required
+
+            # TODO Decide streamer vs. polling
+            #streamer = MyStreamer(environment=self.environment,
+            #                      access_token=self.access_token)
+            #streamer.start(accountId=self.account_id, instruments=self.instruments)
             for s in strategies:
-                print s
+                response = broker.api.get_history(instrument=s,
+                                             granularity='M15',
+                                             count=2,
+                )
+                print json.dumps(response, indent=1)
             time.sleep(5)
 
 
