@@ -73,32 +73,7 @@ class TradeController:
 
     def _start_backtest(self, instruments, input_file):
         raise NotImplementedError()
-        # print "[+] Starting backtest for: '%s'" % instruments
-        # if not self.api:
-        # self.api = OandaAPI(environment=self.environment,
-        # access_token=self.access_token)
-        #
-        # with open("data/EURUSD_M5_oanda.json") as json_m5_file:
-        # json_data_m5 = json.load(json_m5_file)
-        #
-        # with open("data/EURUSD_M15_oanda.json") as json_m15_file:
-        # json_data_m15 = json.load(json_m15_file)
-        #
-        # trader = Trader(json_data_m5, json_data_m15, instruments)
-        # print self.api.get_account(settings.ACCOUNT_ID)
 
-        # data1 = self.api.get_history(instrument=instrument, count=5000, granularity="M5")
-        # data2 = self.api.get_history(instrument=instrument, count=5000, granularity="M15")
-        # with open('EURUSD_M5_oanda.json', 'w') as outfile:
-        # json.dump(data1, outfile)
-        # with open('EURUSD_M15_oanda.json', 'w') as outfile:
-        # json.dump(data2, outfile)
-
-        # for x in data['candles']:
-        # print "woot", x
-        # check if file exists
-        # for line in file call on_success
-        # updated output (e.g. using curses) after each call
 
     def _start_live(self, accountId, instruments):
         raise NotImplementedError()
@@ -117,6 +92,7 @@ class TradeController:
     def disconnect(self):
         raise NotImplementedError()
         # TODO Since feeds are attached to a strategy object, the disconnect
-        # should happen via that object, e.g. strategies['EURCHF'].disconnect()
+        # should happen via the strategy object, e.g.
+        # strategies['EURCHF'].disconnect()
         # for strat in self._strategies:
         #     strat.disconnect()
