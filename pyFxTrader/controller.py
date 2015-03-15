@@ -6,12 +6,12 @@ import time
 from etc import settings
 from broker import Broker
 from datafeed import DataFeed
-from strategy.coban_strategy import CobanStrategy
+from strategy.sma_example import SmaStrategy
 
 
 class TradeController:
     # Change this to your flavour
-    DEFAULT_STRATEGY = CobanStrategy
+    DEFAULT_STRATEGY = SmaStrategy
 
     _strategies = {}
 
