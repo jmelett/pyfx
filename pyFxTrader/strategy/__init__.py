@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class Strategy(object):
     TIMEFRAMES = []  # e.g. ['M30', 'H2']
 
