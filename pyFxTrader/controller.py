@@ -4,12 +4,10 @@ import json
 import time
 
 from logbook import Logger
-
 from etc import settings
 from broker import Broker
 from lib.oandapy import oandapy
 from strategy.sma_example import SmaStrategy
-from datafeed import MyStreamer
 
 
 log = Logger('pyFxTrader')
@@ -53,7 +51,7 @@ class TradeController(object):
                                  'only once (%s)' % currency_pair)
 
         oanda_api = oandapy.API(environment=self.environment,
-                            access_token=self.access_token)
+                                access_token=self.access_token)
         broker = Broker(mode=self.mode, api=oanda_api)
         while True:
             log.info(
@@ -70,13 +68,13 @@ class TradeController(object):
             # 5. Send E-Mail or SMS to user in case of action required
 
             # TODO Decide streamer vs. polling
-            #streamer = MyStreamer(environment=self.environment,
-            #                      access_token=self.access_token)
-            #streamer.start(accountId=self.account_id, instruments=self.instruments)
+            # streamer = MyStreamer(environment=self.environment,
+            #                       access_token=self.access_token)
+            # streamer.start(accountId=self.account_id, instruments=self.instruments)
             for s in strategies:
                 response = broker.api.get_history(instrument=s,
-                                             granularity='M15',
-                                             count=2,
+                                                  granularity='M15',
+                                                  count=2,
                 )
                 print json.dumps(response, indent=1)
             time.sleep(5)
