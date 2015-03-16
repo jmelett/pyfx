@@ -24,6 +24,13 @@ class Broker(object):
             self._initial_balance = self.get_account_balance()
         log.debug('Balance: %f/%f' % (self._initial_balance, self._current_balance))
 
+    def get_history(self, **params):
+        # TODO Implement backtest feed interface
+        backtest = False
+        if backtest:
+            raise NotImplementedError()
+        else:
+            return self.api.get_history(**params)
 
     def get_account_balance(self):
         if not self.mode == 'backtest':

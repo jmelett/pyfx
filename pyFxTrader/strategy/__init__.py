@@ -49,13 +49,13 @@ class Strategy(object):
         for timeframe in self.feeds:
             last_timestamp = None
             if len(self.feeds[timeframe]) > 0:
-                response = self.broker.api.get_history(
+                response = self.broker.get_history(
                     instrument=self.instrument,
                     granularity=timeframe,
                     count=self.NEXT_BAR_COUNT, )
                 last_timestamp = self.feeds[timeframe][-1]['time']
             else:
-                response = self.broker.api.get_history(
+                response = self.broker.get_history(
                     instrument=self.instrument,
                     granularity=timeframe,
                     count=self.INIT_BAR_COUNT, )
