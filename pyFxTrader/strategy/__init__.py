@@ -13,15 +13,13 @@ class Strategy(object):
     INIT_BAR_COUNT = 100
     NEXT_BAR_COUNT = 10
 
-    feeds = {}
-
     def __init__(self, instrument, broker):
         self.instrument = instrument
         self.broker = broker
 
         if not self.TIMEFRAMES:
             raise ValueError('Please define TIMEFRAMES variable.')
-
+        self.feeds = {}
         for tf in self.TIMEFRAMES:
             self.feeds[tf] = deque(maxlen=self.BUFFER_SIZE)
             log.info('Initialized %s feed for %s' % (tf, self.instrument))
