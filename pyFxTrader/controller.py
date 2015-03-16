@@ -38,21 +38,22 @@ class TradeController(object):
     def start(self):
         self._strategies = strategies = {}
         log.info('Starting TradeController')
-        # TODO Implement multi-instrument/strategy functionality
+
+        oanda_api = oandapy.API(environment=self.environment,
+                                access_token=self.access_token)
+        broker = Broker(mode=self.mode, api=oanda_api)
+
         # Initialize the strategy for all currency pairs
         for currency_pair in self.instruments:
             if not currency_pair in strategies:
                 strategies[currency_pair] = self.DEFAULT_STRATEGY(
-                    instrument=currency_pair)
+                    instrument=currency_pair, broker=broker)
                 log.info('Loading strategy for: %s' % currency_pair)
                 strategies[currency_pair].start()
             else:
                 raise ValueError('Please make sure that instruments are used '
                                  'only once (%s)' % currency_pair)
 
-        oanda_api = oandapy.API(environment=self.environment,
-                                access_token=self.access_token)
-        broker = Broker(mode=self.mode, api=oanda_api)
         while True:
             log.info(
                 u'Current balance: {0:f}'.format(broker.get_account_balance()))
@@ -72,12 +73,8 @@ class TradeController(object):
             #                       access_token=self.access_token)
             # streamer.start(accountId=self.account_id, instruments=self.instruments)
             for s in strategies:
-                response = broker.api.get_history(instrument=s,
-                                                  granularity='M15',
-                                                  count=2,
-                )
-                print json.dumps(response, indent=1)
-            time.sleep(5)
+                strategies[s].calculate()
+            time.sleep(60)
 
 
     def _start_backtest(self, instruments, input_file):
