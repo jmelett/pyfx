@@ -2,7 +2,7 @@ env
 .idea/
 *.pyc
 settings.py
-coban_strategy.py
 tmp/
 plots/
 README_internal.md
+pyFxTrader/strategy/private
