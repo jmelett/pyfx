@@ -9,7 +9,7 @@ log = Logger('pyFxTrader')
 
 class Strategy(object):
     TIMEFRAMES = []  # e.g. ['M30', 'H2']
-    BUFFER_SIZE = 500
+    BUFFER_SIZE = 300
     INIT_BAR_COUNT = 100
     NEXT_BAR_COUNT = 10
 
@@ -17,33 +17,22 @@ class Strategy(object):
         self.instrument = instrument
         self.broker = broker
 
+        self.feeds = {}
         if not self.TIMEFRAMES:
             raise ValueError('Please define TIMEFRAMES variable.')
-        self.feeds = {}
         for tf in self.TIMEFRAMES:
             self.feeds[tf] = deque(maxlen=self.BUFFER_SIZE)
             log.info('Initialized %s feed for %s' % (tf, self.instrument))
 
-    def _convert_data(self, feed):
+    def _convert_data(self, feed, timeframe):
+        """
+        Converts feed input to a dataframe, which can be used
+        for further data analysis
+        """
+
         raise NotImplementedError()
 
-    def start(self):
-        """ Called on strategy start. """
-        raise NotImplementedError()
-
-    def new_bar(self, instrument, cur_index):
-        """ Called on every bar of every instrument that client is subscribed on. """
-        raise NotImplementedError()
-
-    def execute(self, engine, instruments, cur_index):
-        """ Called on after all indicators have been updated for this bar's index """
-        raise NotImplementedError()
-
-    def end(self, engine):
-        """ Called on strategy stop. """
-        raise NotImplementedError()
-
-    def update_buffer(self):
+    def _update_buffer(self):
         """ Update update buffer with latest feed data """
 
         for timeframe in self.feeds:
@@ -52,12 +41,14 @@ class Strategy(object):
                 response = self.broker.get_history(
                     instrument=self.instrument,
                     granularity=timeframe,
+                    candleFormat='midpoint',
                     count=self.NEXT_BAR_COUNT, )
                 last_timestamp = self.feeds[timeframe][-1]['time']
             else:
                 response = self.broker.get_history(
                     instrument=self.instrument,
                     granularity=timeframe,
+                    candleFormat='midpoint',
                     count=self.INIT_BAR_COUNT, )
 
             new_candles = []
@@ -70,6 +61,7 @@ class Strategy(object):
                     new_candles.append(candle)
 
             if new_candles:
+                # print new_candles[-1]
                 log.debug('{0:d} new candle(s) for {1:s}/{2:s}'.format(
                     len(new_candles), timeframe, self.instrument))
                 new_candles = sorted(new_candles, key=lambda k: k['time'])
@@ -77,10 +69,23 @@ class Strategy(object):
                 for candle in new_candles:
                     self.feeds[timeframe].append(candle)
 
-                self.data_buffer[timeframe] = self._convert_data(
-                    self.feeds[timeframe])
+                self.data_frame[timeframe] = self._convert_data(
+                    self.feeds[timeframe], timeframe)
 
         if new_candles:
             return True
         else:
             return False
+
+    def start(self):
+        """ Called on strategy start. """
+        raise NotImplementedError()
+
+    def end(self, engine):
+        """ Called on strategy stop. """
+        raise NotImplementedError()
+
+    def recalc(self):
+        """ Update buffer and recalculate signals. """
+        raise NotImplementedError()
+

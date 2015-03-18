@@ -73,7 +73,7 @@ class TradeController(object):
             #                       access_token=self.access_token)
             # streamer.start(accountId=self.account_id, instruments=self.instruments)
             for s in strategies:
-                strategies[s].calculate()
+                strategies[s].recalc()
             time.sleep(60)
 
 
