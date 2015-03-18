@@ -6,9 +6,7 @@ import numpy as np
 def moving_average(x, n, type='simple'):
     """
     compute an n period moving average.
-
     type is 'simple' | 'exponential'
-
     """
     x = np.asarray(x)
     if type == 'simple':
@@ -57,11 +55,19 @@ def relative_strength(prices, n=14):
     return rsi
 
 
-def moving_average_convergence(x, nslow=26, nfast=12):
+def moving_average_convergence(x, nslow=26, nfast=12, nsign=9, simple=False):
     """
-    compute the MACD (Moving Average Convergence/Divergence) using a fast and slow exponential moving avg'
-    return value is emaslow, emafast, macd which are len(x) arrays
+    compute the MACD (Moving Average Convergence/Divergence) using a fast and
+    slow exponential moving avg'
     """
-    emaslow = moving_average(x, nslow, type='exponential')
-    emafast = moving_average(x, nfast, type='exponential')
-    return emaslow, emafast, emafast - emaslow
+
+    macd_dict = {}
+    macd_dict['fast'] = moving_average(x, nfast, type='exponential')
+    macd_dict['slow'] = moving_average(x, nslow, type='exponential')
+    macd_dict['macd'] = map(lambda f, s: round(f - s, 5), macd_dict['fast'],
+                            macd_dict['slow'])
+    macd_dict['sign'] = moving_average(macd_dict['macd'], nsign)
+    if not simple:
+        return macd_dict
+    else:
+        return macd_dict['macd']
