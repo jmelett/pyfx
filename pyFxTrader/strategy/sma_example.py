@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import time
 
 from logbook import Logger
 import numpy as np
@@ -39,6 +40,8 @@ class SmaStrategy(Strategy):
             close_array.append(item['closeMid'])
             volume_array.append(float(item['volume']))
             time_array.append(item['time'])
+            from feedparser import _parse_date
+            print _parse_date(item['time'])
             time_formatted_array.append(item['time'][11:16])
 
         sma_fast_array = moving_average(close_array, SMA_FAST)
@@ -61,6 +64,7 @@ class SmaStrategy(Strategy):
 
         ret_df.tail(50).plot(x='time',
                              y=['close', 'sma_fast', 'sma_slow', ])
+        plt.suptitle('%s/%s (%s), %s' % (self.instrument, timeframe, self.STRATEGY_NAME, time.strftime("%c")))
         plt.savefig(u'plots/{0:s}_{1:s}'.format(self.instrument, timeframe))
 
         return ret_df
