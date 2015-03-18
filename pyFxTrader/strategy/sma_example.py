@@ -40,8 +40,6 @@ class SmaStrategy(Strategy):
             close_array.append(item['closeMid'])
             volume_array.append(float(item['volume']))
             time_array.append(item['time'])
-            from feedparser import _parse_date
-            print _parse_date(item['time'])
             time_formatted_array.append(item['time'][11:16])
 
         sma_fast_array = moving_average(close_array, SMA_FAST)
