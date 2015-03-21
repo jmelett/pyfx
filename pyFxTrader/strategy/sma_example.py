@@ -6,13 +6,11 @@ import time
 from logbook import Logger
 import numpy as np
 import pandas as pd
+import talib
 import matplotlib.pyplot as plt
 
 from . import Strategy
-from utils.indicators import moving_average, \
-    moving_average_convergence as macd, relative_strength as rsi
 
-import talib
 
 log = Logger('pyFxTrader')
 
@@ -54,7 +52,7 @@ class SmaStrategy(Strategy):
                                       slowperiod=26,
                                       signalperiod=9)
         rsi_array = talib.RSI(np.array(close_array))
- 
+
         ret_df = pd.DataFrame(data={'time': time_formatted_array,
                                     'time_full': time_array,
                                     'close': close_array,
