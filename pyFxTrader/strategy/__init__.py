@@ -18,6 +18,8 @@ class Strategy(object):
         self.broker = broker
 
         self.feeds = {}
+        self.data_frame = {}
+
         if not self.TIMEFRAMES:
             raise ValueError('Please define TIMEFRAMES variable.')
         for tf in self.TIMEFRAMES:
@@ -34,6 +36,9 @@ class Strategy(object):
 
     def _update_buffer(self):
         """ Update update buffer with latest feed data """
+
+        has_changes = False
+        new_candles_dict = {}
 
         for timeframe in self.feeds:
             last_timestamp = None
@@ -61,7 +66,7 @@ class Strategy(object):
                     new_candles.append(candle)
 
             if new_candles:
-                # print new_candles[-1]
+                has_changes = True
                 log.debug('{0:d} new candle(s) for {1:s}/{2:s}'.format(
                     len(new_candles), timeframe, self.instrument))
                 new_candles = sorted(new_candles, key=lambda k: k['time'])
@@ -71,17 +76,14 @@ class Strategy(object):
 
                 self.data_frame[timeframe] = self._convert_data(
                     self.feeds[timeframe], timeframe)
-
-        if new_candles:
-            return True
-        else:
-            return False
+            new_candles_dict[timeframe] = len(new_candles)
+        return has_changes, new_candles_dict
 
     def start(self):
         """ Called on strategy start. """
         raise NotImplementedError()
 
-    def end(self, engine):
+    def end(self):
         """ Called on strategy stop. """
         raise NotImplementedError()
 
