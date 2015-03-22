@@ -35,7 +35,12 @@ class Strategy(object):
         raise NotImplementedError()
 
     def _update_buffer(self):
-        """ Update update buffer with latest feed data """
+        """
+        Update update buffer with latest feed data
+        the get_history() method is called here since this can be very
+        strategy specific.
+        """
+        # TODO Needs refactoring for better integration in Broker class.
 
         has_changes = False
         new_candles_dict = {}

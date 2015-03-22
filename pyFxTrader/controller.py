@@ -7,18 +7,15 @@ from logbook import Logger
 from etc import settings
 from broker import Broker
 from lib.oandapy import oandapy
-from strategy.sma_example import SmaStrategy
-
 
 log = Logger('pyFxTrader')
 
 
 class TradeController(object):
-    # Change this to your flavour
-    DEFAULT_STRATEGY = SmaStrategy
+    DEFAULT_STRATEGY = settings.DEFAULT_STRATEGY
 
-    _strategies = {}
-
+    strategies = None
+    broker = None
     access_token = None
     environment = None
     mode = None
@@ -31,17 +28,18 @@ class TradeController(object):
         self.access_token = settings.ACCESS_TOKEN
         self.account_id = settings.ACCOUNT_ID
         self.mode = mode
+
         # Make sure no empty instruments are in our list
         self.instruments = [x for x in instruments.split(',') if x]
 
 
     def start(self):
-        self._strategies = strategies = {}
+        self.strategies = strategies = {}
         log.info('Starting TradeController')
 
         oanda_api = oandapy.API(environment=self.environment,
                                 access_token=self.access_token)
-        broker = Broker(mode=self.mode, api=oanda_api)
+        self.broker = broker = Broker(mode=self.mode, api=oanda_api)
 
         # Initialize the strategy for all currency pairs
         for currency_pair in self.instruments:
@@ -54,36 +52,25 @@ class TradeController(object):
                 raise ValueError('Please make sure that instruments are used '
                                  'only once (%s)' % currency_pair)
 
+        if self.mode == 'backtest':
+            self.start_backtest()
+        elif self.mode == 'live':
+            self.start_live()
+        else:
+            raise NotImplementedError()
+
+    def start_backtest(self):
+        ret = self.broker.init_backtest_data(self.strategies)
+        if ret:
+            while ret:
+                for s in self.strategies:
+                    self.strategies[s].recalc()
+
+    def start_live(self):
         while True:
-            log.info(
-                u'Current balance: {0:f}'.format(broker.get_account_balance()))
-            # Iterate every tick through all strategy objects and
-            # recalculate if required
-            # TODO
-            # 1. Check account balance, make sure nothing changed
-            # dramatically, else red_alert()!
-            # 2. Check all strategy objects for a buy/sell signal
-            # 3. Calculate position size and place order)
-            # 4. Check if order was placed and/or others were cancelled
-            # (for whatever reason)
-            # 5. Send E-Mail or SMS to user in case of action required
-
-            # TODO Decide streamer vs. polling
-            # streamer = MyStreamer(environment=self.environment,
-            #                       access_token=self.access_token)
-            # streamer.start(accountId=self.account_id, instruments=self.instruments)
-            for s in strategies:
-                strategies[s].recalc()
-            time.sleep(60)
-
-
-    def _start_backtest(self, instruments, input_file):
-        raise NotImplementedError()
-
-
-    def _start_live(self, accountId, instruments):
-        raise NotImplementedError()
-
+            for s in self.strategies:
+                self.strategies[s].recalc()
+            time.sleep(30)
 
     def red_alert(self, message=None):
         """
