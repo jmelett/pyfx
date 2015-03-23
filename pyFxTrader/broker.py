@@ -42,8 +42,8 @@ class Broker(object):
         method.
         """
 
-        start_date = parse_datetime('2015-02-01T00:00:00Z')
-        end_date = parse_datetime('2015-02-08T00:00:00Z')
+        start_date = parse_datetime('2015-03-20T00:00:00Z')
+        end_date = parse_datetime('2015-03-24T00:00:00Z')
         # TODO Allow datetime to be passed as cli parameter
         self._backtest_start_datetime = start_date
         self._backtest_tick_buffer = tickdata_dict = {}
@@ -98,6 +98,7 @@ class Broker(object):
             # On init provide 100, then "simulate" the current time and provide
             # relative candles
             if 'is_init' in params:
+                # TODO Fixme: Provide 100 candles BEFORE 'start' date
                 data = self.api.get_history(
                     instrument=params['instrument'],
                     granularity=params['granularity'],
