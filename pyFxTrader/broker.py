@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from logbook import Logger
 
 from lib.rfc3339 import datetimetostr, parse_datetime, parse_date
@@ -10,6 +12,10 @@ log = Logger('pyFxTrader')
 class Broker(object):
     _initial_balance = 0.00
     _current_balance = 0.00
+
+    # backtesting vars
+    _backtest_start_datetime = None
+    _backtest_tick_buffer = None
 
     mode = None
     api = None
@@ -30,16 +36,21 @@ class Broker(object):
             'Balance: %f/%f' % (self._initial_balance, self._current_balance))
 
     def init_backtest_data(self, strategies):
-        start_date = parse_datetime('2015-02-01T00:00:00Z')
-        end_date = parse_datetime('2015-02-10T00:00:00Z')
-        # TODO Allow date to be passed as cli parameter
+        """
+        Prepare the backtest data for each strategy and timeframe and save
+        it in a dictionary, which is afterwards accessed by the get_history()
+        method.
+        """
 
-        tickdata_dict = {}
+        start_date = parse_datetime('2015-02-01T00:00:00Z')
+        end_date = parse_datetime('2015-02-08T00:00:00Z')
+        # TODO Allow datetime to be passed as cli parameter
+        self._backtest_start_datetime = start_date
+        self._backtest_tick_buffer = tickdata_dict = {}
 
         for s in strategies:
-            inst_dict = {}
+            instrument_dict = {}
             for tf in strategies[s].TIMEFRAMES:
-                tf_dict = {}
                 is_data_downloaded = False
 
                 candle_list = []
@@ -64,26 +75,57 @@ class Broker(object):
                             break
                         if last_tick:
                             if tick_dt <= last_tick:
-                                continue
+                                # Ignore if new tick value is older than last_tick
+                                raise ValueError(
+                                    "Received tick in non-sequential order")
+                                # continue
                         if tick_dt >= start_date:
                             candle_list.append(tick)
                         last_tick = tick_dt
                     if last_tick:
                         next_start = datetimetostr(last_tick)
-                log.debug('Fetched %s candles for %s/%s' % (len(candle_list), s, tf))
-                #print json.dumps(candle_list, indent=1)
-                inst_dict[tf] = tf_dict
-            tickdata_dict[strategies[s].instrument] = inst_dict
+                log.debug(
+                    'Fetched %s candles for %s/%s' % (len(candle_list), s, tf))
+                # print json.dumps(candle_list, indent=1)
+                instrument_dict[tf] = candle_list
+            tickdata_dict[strategies[s].instrument] = instrument_dict
         self.backtest_data_ready = True
         return self.backtest_data_ready
 
     def get_history(self, **params):
-        # TODO Implement backtest feed interface
-        backtest = self.mode
         if self.mode == 'backtest':
-            # Get data for defined timeframe (merge if neccessary)
-            # On init provide 100, then 1 new candle
-            raise NotImplementedError()
+            # Get data for defined timeframes:
+            # On init provide 100, then "simulate" the current time and provide
+            # relative candles
+            if 'is_init' in params:
+                data = self.api.get_history(
+                    instrument=params['instrument'],
+                    granularity=params['granularity'],
+                    candleFormat=params['candleFormat'],
+                    start=datetimetostr(self._backtest_start_datetime),
+                    includeFirst='true',
+                    count=100)
+                return data
+
+            self._backtest_start_datetime = self._backtest_start_datetime + timedelta(
+                seconds=30)
+            tick_data = self._backtest_tick_buffer[params['instrument']][
+                params['granularity']]
+
+            ret_list = []
+            for item in tick_data:
+                tick_time = parse_datetime(item['time'])
+                if tick_time <= self._backtest_start_datetime:
+                    ret_list.append(item)
+            tick_data = [x for x in tick_data if x not in ret_list]
+
+            if len(tick_data) <= 0:
+                exit()  # TODO Move this to controller (or strategy)
+
+            self._backtest_tick_buffer[params['instrument']][
+                params['granularity']] = tick_data
+            return {'candles': ret_list}
+
         elif self.mode == 'live':
             return self.api.get_history(**params)
         else:

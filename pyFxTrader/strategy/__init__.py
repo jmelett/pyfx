@@ -52,14 +52,17 @@ class Strategy(object):
                     instrument=self.instrument,
                     granularity=timeframe,
                     candleFormat='midpoint',
-                    count=self.NEXT_BAR_COUNT, )
+                    count=self.NEXT_BAR_COUNT
+                )
                 last_timestamp = self.feeds[timeframe][-1]['time']
             else:
                 response = self.broker.get_history(
                     instrument=self.instrument,
                     granularity=timeframe,
                     candleFormat='midpoint',
-                    count=self.INIT_BAR_COUNT, )
+                    count=self.INIT_BAR_COUNT,
+                    is_init=True
+                )
 
             new_candles = []
             for candle in response['candles']:
@@ -79,8 +82,7 @@ class Strategy(object):
                 for candle in new_candles:
                     self.feeds[timeframe].append(candle)
 
-                self.data_frame[timeframe] = self._convert_data(
-                    self.feeds[timeframe], timeframe)
+                self.data_frame[timeframe] = self._convert_data(self.feeds[timeframe], timeframe)
             new_candles_dict[timeframe] = len(new_candles)
         return has_changes, new_candles_dict
 
