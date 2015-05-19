@@ -1,29 +1,40 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html>
   <head>
-    <meta charset="UTF-8">
-    <title>pyFxTrader by jmelett</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
-    <section class="page-header">
-      <h1 class="project-name">pyFxTrader</h1>
-      <h2 class="project-tagline"></h2>
-      <a href="https://github.com/jmelett/pyFxTrader" class="btn">View on GitHub</a>
-      <a href="https://github.com/jmelett/pyFxTrader/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/jmelett/pyFxTrader/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-    <section class="main-content">
-      <h1>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>pyFxTrader by jmelett</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>pyFxTrader</h1>
+        <h2></h2>
+
+        <section id="downloads">
+          <a href="https://github.com/jmelett/pyFxTrader/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/jmelett/pyFxTrader/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/jmelett/pyFxTrader" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
 <a id="pyfxtrader" class="anchor" href="#pyfxtrader" aria-hidden="true"><span class="octicon octicon-link"></span></a>pyFxTrader</h1>
 
-<h1>
-<a id="scope" class="anchor" href="#scope" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scope</h1>
+<h1></h1>
+
+<h2>
+<a id="scope" class="anchor" href="#scope" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scope</h2>
 
 <ul>
 <li>The goal is to provide a backtesting and live trading tool, which can run
@@ -32,11 +43,11 @@ multiple strategies on up to 10 currency pairs.</li>
 calculate buy/sell actions based on them.</li>
 </ul>
 
-<h1>
-<a id="strategy" class="anchor" href="#strategy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Strategy</h1>
-
 <h2>
-<a id="indicators" class="anchor" href="#indicators" aria-hidden="true"><span class="octicon octicon-link"></span></a>Indicators</h2>
+<a id="strategy" class="anchor" href="#strategy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Strategy</h2>
+
+<h3>
+<a id="indicators" class="anchor" href="#indicators" aria-hidden="true"><span class="octicon octicon-link"></span></a>Indicators</h3>
 
 <p>Currently implemented are</p>
 
@@ -48,15 +59,15 @@ calculate buy/sell actions based on them.</li>
 
 <p>Many others can also be used from <code>TA-Lib</code> or <code>numpy</code>.</p>
 
-<h2>
-<a id="timeframes" class="anchor" href="#timeframes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Timeframes</h2>
+<h3>
+<a id="timeframes" class="anchor" href="#timeframes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Timeframes</h3>
 
 <ul>
 <li>OANDA supports a wide range of timeframes. You can find all supported values <a href="http://developer.oanda.com/rest-live/rates/#retrieveInstrumentHistory">here</a>.</li>
 </ul>
 
-<h1>
-<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO</h1>
+<h2>
+<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO</h2>
 
 <ul>
 <li>Add Matplot/Plot.ly support. See also following <a href="http://www.randalolson.com/2014/06/28/how-to-make-beautiful-data-visualizations-in-python-with-matplotlib/">tutorial</a>.</li>
@@ -66,8 +77,8 @@ available locally and only then fetch/save via API.</li>
 <li>Prepare Makefile.</li>
 </ul>
 
-<h1>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h1>
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
 <pre><code>git clone git@github.com:jmelett/pyFxTrader.git
 cd pyFxTrader
@@ -76,16 +87,9 @@ source env/bin/activate
 pip install -r requirements.txt
 python pyFxTrader/app.py -h
 </code></pre>
+      </section>
+    </div>
 
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/jmelett/pyFxTrader">pyFxTrader</a> is maintained by <a href="https://github.com/jmelett">jmelett</a>.</span>
-
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
-
-    </section>
-
-  
+    
   </body>
 </html>
-
