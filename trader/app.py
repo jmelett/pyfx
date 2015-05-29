@@ -1,19 +1,21 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+from __future__ import print_function
 
 import argparse
 import signal
 import sys
 
-from controller import TradeController
+from trader.controller import TradeController
 
 
 def signal_handler(signal, frame):
-    print '\n[-] Disconnecting, good bye.'
+    print('\n[-] Disconnecting, good bye.')
     controller.disconnect()
     sys.exit(0)
+
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -38,7 +40,8 @@ if __name__ == '__main__':
         dest='verbosity',
         default=0,
         action='count',
-        help='increase verbosity')
+        help='increase verbosity'
+    )
 
     args = parser.parse_args()
 

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import json
 import time
 
 from logbook import Logger
@@ -21,7 +18,6 @@ SMA_SLOW = 50
 class SmaStrategy(Strategy):
     STRATEGY_NAME = 'SmaCrossingStrategy'
     TIMEFRAMES = ['H1', 'H2']
-
 
     def __init__(self, *args, **kwargs):
         super(SmaStrategy, self).__init__(*args, **kwargs)
@@ -53,15 +49,16 @@ class SmaStrategy(Strategy):
                                       signalperiod=9)
         rsi_array = talib.RSI(np.array(close_array))
 
-        ret_df = pd.DataFrame(data={'time': time_formatted_array,
-                                    'time_full': time_array,
-                                    'close': close_array,
-                                    'open': open_array,
-                                    'volume': volume_array,
-                                    'sma_fast': sma_fast_array,
-                                    'sma_slow': sma_slow_array,
-                                    'macd': macd_array,
-                                    'rsi': rsi_array,
+        ret_df = pd.DataFrame(data={
+            'time': time_formatted_array,
+            'time_full': time_array,
+            'close': close_array,
+            'open': open_array,
+            'volume': volume_array,
+            'sma_fast': sma_fast_array,
+            'sma_slow': sma_slow_array,
+            'macd': macd_array,
+            'rsi': rsi_array,
         })
         self.pretty_plot(ret_df, timeframe, self.STRATEGY_NAME)
         return ret_df

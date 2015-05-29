@@ -82,7 +82,8 @@ class Strategy(object):
                 for candle in new_candles:
                     self.feeds[timeframe].append(candle)
 
-                self.data_frame[timeframe] = self._convert_data(self.feeds[timeframe], timeframe)
+                self.data_frame[timeframe] = self._convert_data(
+                    self.feeds[timeframe], timeframe)
             new_candles_dict[timeframe] = len(new_candles)
         return has_changes, new_candles_dict
 
@@ -97,4 +98,3 @@ class Strategy(object):
     def recalc(self):
         """ Update buffer and recalculate signals. """
         raise NotImplementedError()
-

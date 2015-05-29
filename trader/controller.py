@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
-
-import json
 import time
 
 from logbook import Logger
-from etc import settings
-from broker import Broker
-from lib.oandapy import oandapy
+
+from .conf import settings
+from .broker import Broker
+from .lib.oandapy import oandapy
+
 
 log = Logger('pyFxTrader')
 
 
 class TradeController(object):
-    DEFAULT_STRATEGY = settings.DEFAULT_STRATEGY
+    DEFAULT_STRATEGY = settings.STRATEGY
 
     strategies = None
     broker = None
@@ -22,16 +21,14 @@ class TradeController(object):
     input_file = None
     instruments = []
 
-
     def __init__(self, mode=None, instruments=None):
-        self.environment = settings.DEFAULT_ENVIRONMENT
+        self.environment = settings.ENVIRONMENT
         self.access_token = settings.ACCESS_TOKEN
         self.account_id = settings.ACCOUNT_ID
         self.mode = mode
 
         # Make sure no empty instruments are in our list
         self.instruments = [x for x in instruments.split(',') if x]
-
 
     def start(self):
         self.strategies = strategies = {}
@@ -43,7 +40,7 @@ class TradeController(object):
 
         # Initialize the strategy for all currency pairs
         for currency_pair in self.instruments:
-            if not currency_pair in strategies:
+            if currency_pair not in strategies:
                 strategies[currency_pair] = self.DEFAULT_STRATEGY(
                     instrument=currency_pair, broker=broker)
                 log.info('Loading strategy for: %s' % currency_pair)

@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from logbook import Logger
 
-from lib.rfc3339 import datetimetostr, parse_datetime, parse_date
+from .lib.rfc3339 import datetimetostr, parse_datetime
 
 log = Logger('pyFxTrader')
 
@@ -75,7 +75,8 @@ class Broker(object):
                             break
                         if last_tick:
                             if tick_dt <= last_tick:
-                                # Ignore if new tick value is older than last_tick
+                                # Ignore if new tick value is older than the
+                                # last_tick
                                 raise ValueError(
                                     "Received tick in non-sequential order")
                                 # continue
@@ -108,8 +109,8 @@ class Broker(object):
                     count=100)
                 return data
 
-            self._backtest_start_datetime = self._backtest_start_datetime + timedelta(
-                seconds=30)
+            self._backtest_start_datetime = (self._backtest_start_datetime +
+                                             timedelta(seconds=30))
             tick_data = self._backtest_tick_buffer[params['instrument']][
                 params['granularity']]
 
@@ -135,7 +136,7 @@ class Broker(object):
     def get_account_balance(self):
         if not self.mode == 'backtest':
             raise NotImplementedError()
-            self._current_balance = get_balance_from_api()
+            # self._current_balance = get_balance_from_api()
         return self._current_balance
 
     def get_open_trades(self):
