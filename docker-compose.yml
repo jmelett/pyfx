@@ -1,0 +1,11 @@
+app:
+  build: .
+  volumes:
+    - .:/usr/src/app
+    - ../coolfig/coolfig:/usr/local/lib/python2.7/site-packages/coolfig
+  environment:
+    - PYTHONPATH=.
+    - TRADER_ACCESS_TOKEN=myoandaaccesstoken
+    - TRADER_ACCOUNT_ID=myoandaaccountid
+  entrypoint: bash
+  #entrypoint: trader/app.py
