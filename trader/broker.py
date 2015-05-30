@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import timedelta
 
 from logbook import Logger
@@ -16,6 +14,11 @@ class OandaBacktestBroker(object):
 
     def get_account_balance(self):
         return self._current_balance
+
+
+class OandaLiveBroker(object):
+    def __init__(self, api):
+        self._api = api
 
 
 class Broker(object):

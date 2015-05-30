@@ -1,3 +1,5 @@
+import decimal
+
 import click
 
 from .controller import Controller, IntervalClock
@@ -14,7 +16,8 @@ def main(instruments):
     Algortihmic trading tool.
     """
     # XXX: Currently only backtesting is supported
-    broker = OandaBacktestBroker()
+    broker = OandaBacktestBroker(
+        api=None, initial_balance=decimal.Decimal(1000))
     clock = IntervalClock(1)
 
     # XXX: We have to be able to instantiate strategies with custom args

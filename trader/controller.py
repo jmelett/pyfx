@@ -1,5 +1,6 @@
 import threading
 import itertools
+from datetime import datetime
 from time import sleep
 
 import click
@@ -12,7 +13,7 @@ class IntervalClock(object):
     def __iter__(self):
         while True:
             # XXX: We probably want to return a datetime here
-            yield
+            yield datetime.utcnow()
             sleep(self.interval)
 
 
@@ -33,9 +34,9 @@ class ControllerBase(object):
         self._broker = broker
         self._strategies = strategies
 
-    def initialize(self):
+    def initialize(self, tick):
         for strategy in self._strategies:
-            strategy.bind(self._broker)
+            strategy.start(self._broker, tick)
 
     def run(self):
         raise NotImplementedError()
@@ -71,8 +72,9 @@ class ThreadedControllerMixin(object):
                 break
 
     def _run(self):
-        self.initialize()
-        for tick in self._clock:
+        clock = iter(self._clock)
+        self.initialize(next(clock))
+        for tick in clock:
             if self._stop_requested:
                 return
             self.execute_tick(tick)

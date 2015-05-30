@@ -2,7 +2,7 @@ from collections import deque
 
 from logbook import Logger
 
-from .operations import Sell
+from ..operations import Sell
 
 
 log = Logger('pyFxTrader')
@@ -12,7 +12,7 @@ class TestStrategy(object):
     def __init__(self, instrument):
         self.instrument = instrument
 
-    def bind(self, broker):
+    def start(self, broker, tick):
         self.broker = broker
 
     def tick(self, tick):
