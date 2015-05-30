@@ -1,10 +1,24 @@
-# -*- coding: utf-8 -*-
-
 from collections import deque
 
 from logbook import Logger
 
+from .operations import Sell
+
+
 log = Logger('pyFxTrader')
+
+
+class TestStrategy(object):
+    def __init__(self, instrument):
+        self.instrument = instrument
+
+    def bind(self, broker):
+        self.broker = broker
+
+    def tick(self, tick):
+        return [
+            Sell(self.instrument, 10),
+        ]
 
 
 class Strategy(object):

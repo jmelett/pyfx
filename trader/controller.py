@@ -1,83 +1,65 @@
-import time
+import threading
+import itertools
+from time import sleep
 
-from logbook import Logger
-
-from .conf import settings
-from .broker import Broker
-from .lib.oandapy import oandapy
+import click
 
 
-log = Logger('pyFxTrader')
+class IntervalClock(object):
+    def __init__(self, interval):
+        self.interval = interval
 
-
-class TradeController(object):
-    DEFAULT_STRATEGY = settings.STRATEGY
-
-    strategies = None
-    broker = None
-    access_token = None
-    environment = None
-    mode = None
-    input_file = None
-    instruments = []
-
-    def __init__(self, mode=None, instruments=None):
-        self.environment = settings.ENVIRONMENT
-        self.access_token = settings.ACCESS_TOKEN
-        self.account_id = settings.ACCOUNT_ID
-        self.mode = mode
-
-        # Make sure no empty instruments are in our list
-        self.instruments = [x for x in instruments.split(',') if x]
-
-    def start(self):
-        self.strategies = strategies = {}
-        log.info('Starting TradeController')
-
-        oanda_api = oandapy.API(environment=self.environment,
-                                access_token=self.access_token)
-        self.broker = broker = Broker(mode=self.mode, api=oanda_api)
-
-        # Initialize the strategy for all currency pairs
-        for currency_pair in self.instruments:
-            if currency_pair not in strategies:
-                strategies[currency_pair] = self.DEFAULT_STRATEGY(
-                    instrument=currency_pair, broker=broker)
-                log.info('Loading strategy for: %s' % currency_pair)
-                strategies[currency_pair].start()
-            else:
-                raise ValueError('Please make sure that instruments are used '
-                                 'only once (%s)' % currency_pair)
-
-        if self.mode == 'backtest':
-            self.start_backtest()
-        elif self.mode == 'live':
-            self.start_live()
-        else:
-            raise NotImplementedError()
-
-    def start_backtest(self):
-        ret = self.broker.init_backtest_data(self.strategies)
-        if ret:
-            while ret:
-                for s in self.strategies:
-                    self.strategies[s].recalc()
-
-    def start_live(self):
+    def __iter__(self):
         while True:
-            for s in self.strategies:
-                self.strategies[s].recalc()
-            time.sleep(30)
+            # XXX: We probably want to return a datetime here
+            yield
+            sleep(self.interval)
 
-    def red_alert(self, message=None):
-        """
-        Emergency function:
-        - Close all open positions (TBD)
-        - Inform user via E-Mail/SMS/Push
-        - Halt system
-        - Memory dump (TBD)
-        """
-        raise NotImplementedError()
 
-    def disconnect(self):
-        raise NotImplementedError()
+class DummyClock(object):
+    def __iter__(self):
+        while True:
+            yield
+
+
+class ThreadedController(object):
+    def __init__(self, clock, broker, strategies):
+        self._stop_requested = False
+        self._main_loop = None
+        self.clock = clock
+        self.broker = broker
+        self.strategies = strategies
+
+    def run(self):
+        assert self._main_loop is None
+        self._main_loop = threading.Thread(target=self._run)
+        self._main_loop.start()
+
+    def run_until_stopped(self):
+        self.run()
+        while True:
+            try:
+                sleep(999)
+            except KeyboardInterrupt:
+                self.stop()
+                break
+
+    def _run(self):
+        for tick in self.clock:
+            if self._stop_requested:
+                return
+            self.execute_tick(tick)
+            if self._stop_requested:
+                return
+
+    def execute_tick(self, tick):
+        operations = [strategy.tick(tick) for strategy in self.strategies]
+        operations = [op for op in operations if op]
+        # TODO: Add risk management/operations consolidation here
+        for operation in itertools.chain(*operations):
+            operation(self.broker)
+
+    def stop(self):
+        click.secho('\nSIGINT received, shutting down cleanly...', fg='yellow')
+        self._stop_requested = True
+        self._main_loop.join()

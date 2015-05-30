@@ -9,6 +9,10 @@ from .lib.rfc3339 import datetimetostr, parse_datetime
 log = Logger('pyFxTrader')
 
 
+class BacktestBroker(object):
+    pass
+
+
 class Broker(object):
     _initial_balance = 0.00
     _current_balance = 0.00
