@@ -69,6 +69,7 @@ class ThreadedControllerMixin(object):
         super(ThreadedControllerMixin, self).__init__(*args, **kwargs)
         self._stop_requested = False
         self._main_loop = None
+        self._is_running = False
 
     def run(self):
         assert self._main_loop is None
@@ -77,22 +78,24 @@ class ThreadedControllerMixin(object):
 
     def run_until_stopped(self):
         self.run()
-        while True:
+        while self._is_running:
             try:
-                sleep(999)
+                sleep(1)
             except KeyboardInterrupt:
                 self.stop()
                 break
 
     def _run(self):
+        self._is_running = True
         clock = iter(self._clock)
         self.initialize(next(clock))
         for tick in clock:
             if self._stop_requested:
-                return
+                break
             self.execute_tick(tick)
             if self._stop_requested:
-                return
+                break
+        self._is_running = False
 
     def stop(self):
         click.secho('\nSIGINT received, shutting down cleanly...', fg='yellow')
