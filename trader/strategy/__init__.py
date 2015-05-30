@@ -1,10 +1,24 @@
-# -*- coding: utf-8 -*-
-
 from collections import deque
 
 from logbook import Logger
 
+from .operations import Sell
+
+
 log = Logger('pyFxTrader')
+
+
+class TestStrategy(object):
+    def __init__(self, instrument):
+        self.instrument = instrument
+
+    def bind(self, broker):
+        self.broker = broker
+
+    def tick(self, tick):
+        return [
+            Sell(self.instrument, 10),
+        ]
 
 
 class Strategy(object):
@@ -82,7 +96,8 @@ class Strategy(object):
                 for candle in new_candles:
                     self.feeds[timeframe].append(candle)
 
-                self.data_frame[timeframe] = self._convert_data(self.feeds[timeframe], timeframe)
+                self.data_frame[timeframe] = self._convert_data(
+                    self.feeds[timeframe], timeframe)
             new_candles_dict[timeframe] = len(new_candles)
         return has_changes, new_candles_dict
 
@@ -97,4 +112,3 @@ class Strategy(object):
     def recalc(self):
         """ Update buffer and recalculate signals. """
         raise NotImplementedError()
-

@@ -1,6 +1,7 @@
 env
 .idea/
 *.pyc
+/.pip-cache
 settings.py
 tmp/
 plots/
