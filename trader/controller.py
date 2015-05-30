@@ -1,6 +1,6 @@
 import threading
 import itertools
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import sleep
 
 import click
@@ -21,6 +21,19 @@ class DummyClock(object):
     def __iter__(self):
         while True:
             yield
+
+
+class SimulatedClock(object):
+    def __init__(self, start, stop, interval):
+        self.start = start
+        self.stop = stop
+        self.interval = timedelta(seconds=interval)
+
+    def __iter__(self):
+        current = self.start
+        while current < self.stop:
+            yield current
+            current += self.interval
 
 
 class ControllerBase(object):
