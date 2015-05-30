@@ -1,8 +1,9 @@
 import decimal
+from datetime import datetime
 
 import click
 
-from .controller import Controller, IntervalClock
+from .controller import Controller, SimulatedClock
 from .broker import OandaBacktestBroker
 from .instruments import InstrumentParamType
 from .strategy import TestStrategy
@@ -18,7 +19,11 @@ def main(instruments):
     # XXX: Currently only backtesting is supported
     broker = OandaBacktestBroker(
         api=None, initial_balance=decimal.Decimal(1000))
-    clock = IntervalClock(1)
+    clock = SimulatedClock(
+        start=datetime(2015, 01, 01, 12, 00),
+        stop=datetime(2015, 01, 01, 13, 00),
+        interval=30,
+    )
 
     # XXX: We have to be able to instantiate strategies with custom args
     strategies = [TestStrategy(instrument) for instrument in set(instruments)]
