@@ -70,9 +70,6 @@ class SmaStrategy(Strategy):
             self.instrument, timeframe, title, time.strftime("%c")))
         plt.savefig(u'plots/{0:s}_{1:s}'.format(self.instrument, timeframe))
 
-    def start(self):
-        pass
-
     def recalc(self, backtest=False):
         has_new_data = self._update_buffer()
         if has_new_data:

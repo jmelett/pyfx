@@ -9,35 +9,25 @@ from .lib.rfc3339 import datetimetostr, parse_datetime
 log = Logger('pyFxTrader')
 
 
-class BacktestBroker(object):
-    pass
+class OandaBacktestBroker(object):
+    def __init__(self, api, initial_balance):
+        self._api = api
+        self._current_balance = self._initial_balance = initial_balance
+
+    def get_account_balance(self):
+        return self._current_balance
 
 
 class Broker(object):
-    _initial_balance = 0.00
-    _current_balance = 0.00
-
     # backtesting vars
     _backtest_start_datetime = None
     _backtest_tick_buffer = None
 
-    mode = None
     api = None
-    backtest_data_ready = False
 
-    def __init__(self, mode, api, initial_balance=10000.00):
-        self.mode = mode
+    def __init__(self, api):
         self.api = api
-        self.backtest_data_ready = False
-
-        log.debug(u'Broker mode: {0:s}'.format(self.mode))
-        if self.mode == 'backtest':
-            self._initial_balance = initial_balance
-            self._current_balance = self._initial_balance
-        else:
-            self._initial_balance = self.get_account_balance()
-        log.debug(
-            'Balance: %f/%f' % (self._initial_balance, self._current_balance))
+        self._initial_balance = self.get_account_balance()
 
     def init_backtest_data(self, strategies):
         """
@@ -45,7 +35,6 @@ class Broker(object):
         it in a dictionary, which is afterwards accessed by the get_history()
         method.
         """
-
         start_date = parse_datetime('2015-03-20T00:00:00Z')
         end_date = parse_datetime('2015-03-24T00:00:00Z')
         # TODO Allow datetime to be passed as cli parameter
@@ -136,12 +125,3 @@ class Broker(object):
             return self.api.get_history(**params)
         else:
             raise NotImplementedError()
-
-    def get_account_balance(self):
-        if not self.mode == 'backtest':
-            raise NotImplementedError()
-            # self._current_balance = get_balance_from_api()
-        return self._current_balance
-
-    def get_open_trades(self):
-        raise NotImplementedError()

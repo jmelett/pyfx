@@ -1,7 +1,7 @@
 import click
 
-from .controller import ThreadedController, IntervalClock
-from .broker import BacktestBroker
+from .controller import Controller, IntervalClock
+from .broker import OandaBacktestBroker
 from .instruments import InstrumentParamType
 from .strategy import TestStrategy
 
@@ -14,11 +14,11 @@ def main(instruments):
     Algortihmic trading tool.
     """
     # XXX: Currently only backtesting is supported
-    broker = BacktestBroker()
+    broker = OandaBacktestBroker()
     clock = IntervalClock(1)
 
     # XXX: We have to be able to instantiate strategies with custom args
     strategies = [TestStrategy(instrument) for instrument in set(instruments)]
 
-    controller = ThreadedController(clock, broker, strategies)
+    controller = Controller(clock, broker, strategies)
     controller.run_until_stopped()
