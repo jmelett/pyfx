@@ -1,11 +1,29 @@
 app:
   build: .
+  #image: python
   volumes:
     - .:/usr/src/app
     - ../coolfig/coolfig:/usr/local/lib/python2.7/site-packages/coolfig
+    - .pip-cache:/var/cache/pip
   environment:
     - PYTHONPATH=.
     - TRADER_ACCESS_TOKEN=myoandaaccesstoken
     - TRADER_ACCOUNT_ID=myoandaaccountid
-  entrypoint: bash
-  #entrypoint: trader/app.py
+  entrypoint: ./cmd.py
+
+devpi:
+  image: python:2.7.9
+  volumes: 
+    - .pip-cache:/usr/src/app
+  working_dir: /usr/src/app
+  command: python -m SimpleHTTPServer 8000
+  ports:
+    - 80:8000
+
+deps:
+  build: deps
+  volumes:
+    - .:/usr/src/app
+    - .pip-cache:/var/cache/pip
+  working_dir: /usr/src/app
+  command: pip wheel --find-links=/var/cache/pip --wheel-dir=/var/cache/pip --no-deps -r requirements.txt 
