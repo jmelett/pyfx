@@ -19,7 +19,7 @@ def main(instruments):
     """
     # XXX: Currently only backtesting is supported
     api = oandapy.API(
-        environment='sandbox',
+        environment=settings.ENVIRONMENT,
         access_token=settings.ACCESS_TOKEN,
     )
     broker = OandaBacktestBroker(
@@ -28,7 +28,7 @@ def main(instruments):
     clock = SimulatedClock(
         start=datetime(2015, 01, 01, 12, 00),
         stop=datetime(2015, 01, 01, 13, 00),
-        interval=300,
+        interval=settings.CLOCK_INTERVAL,
     )
 
     # XXX: We have to be able to instantiate strategies with custom args

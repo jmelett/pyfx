@@ -8,6 +8,7 @@ class TraderSettings(Settings):
     ACCOUNT_ID = Value(str)
     ENVIRONMENT = Value(str, default='practice')
     STRATEGY = Value(types.dottedpath, default=SMAStrategy)
+    CLOCK_INTERVAL = Value(int, default=30)
 
 
 settings = TraderSettings(providers.EnvConfig(prefix='TRADER_'))
