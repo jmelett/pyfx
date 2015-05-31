@@ -18,8 +18,8 @@ env:
     - TA_LIBRARY_PATH=$HOME/opt/lib
 
 install:
-  - "[ -d $HOME/opt ] || tar -xzvf deps/ta-lib.tar.gz"
-  - "[ -d $HOME/opt ] || { cd ta-lib && ./configure --prefix=$HOME/opt && make && make install && touch installed-on-travis && cd ..; }"
+  - "[ -d $HOME/opt/include/ta-lib ] || tar -xzvf deps/ta-lib.tar.gz"
+  - "[ -d $HOME/opt/include/ta-lib ] || { cd ta-lib && ./configure --prefix=$HOME/opt && make && make install && touch installed-on-travis && cd ..; }"
   - pip install --upgrade pip
   - pip install -r requirements-test.txt
   - pip install coveralls
