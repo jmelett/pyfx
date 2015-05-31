@@ -24,6 +24,6 @@ install:
   - pip install -r requirements-test.txt
   - pip install coveralls
 
-script: py.test --pep8 --cov trader trader
+script: py.test --flake8 --cov trader trader
 
 after_success: coveralls
