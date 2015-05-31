@@ -26,7 +26,8 @@ class OandaBacktestBroker(object):
 
     def get_history(self, *args, **kwargs):
         columns = kwargs.pop('columns', self.default_history_df_columns)
-        assert 'time' in columns
+        if 'time' not in columns:
+            columns = ['time'] + columns
         response = self._api.get_history(*args, **kwargs)
 
         if response['candles']:
