@@ -82,6 +82,10 @@ class Setup(object):
     def email(cls):
         return cls.parse_key('__email__')
 
+    @classmethod
+    def license(cls):
+        return cls.parse_key('__license__')
+
     @staticmethod
     def longdesc():
         return Setup.read('README.rst') + '\n\n' + Setup.read('HISTORY.rst')
@@ -108,12 +112,12 @@ Setup.test_links()
 
 setup(name=PACKAGE,
       version=Setup.version(),
-      author='',
-      author_email='jonathan@stoppani.name',
+      author=Setup.author(),
+      author_email=Setup.email(),
       include_package_data=True,
       zip_safe=False,
       url=Setup.url(),
-      license='GPLv3',
+      license=Setup.license(),
       packages=find_packages(),
       package_dir={PACKAGE: PACKAGE},
       description='Algortihmic trading tool',
@@ -123,7 +127,7 @@ setup(name=PACKAGE,
       classifiers=[
           'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',
-          'License :: OSI Approved :: GPLv3 License',
+          'License :: OSI Approved :: {} License'.format(Setup.license()),
           'Operating System :: OS Independent',
           'Programming Language :: Python',
           'Programming Language :: Python :: 2.7',
