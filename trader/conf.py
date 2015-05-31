@@ -1,5 +1,3 @@
-import os
-
 from coolfig import Settings, Value, types, providers
 
 from .strategy.sma_example import SmaStrategy
@@ -12,5 +10,4 @@ class TraderSettings(Settings):
     STRATEGY = Value(types.dottedpath, default=SmaStrategy)
 
 
-settings = TraderSettings(
-       providers.DictConfig(os.environ, prefix='TRADER_'))
+settings = TraderSettings(providers.EnvConfig(prefix='TRADER_'))

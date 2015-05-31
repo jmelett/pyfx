@@ -2,6 +2,11 @@ env
 .idea/
 *.pyc
 /.pip-cache
+/build
+/dist
+/.coverage
+/.cache
+/.tox
 settings.py
 tmp/
 plots/

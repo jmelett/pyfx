@@ -1,0 +1,14 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+
+install:
+  - pip install -r requirements-test.txt
+  - pip install coveralls
+
+script: py.test --pep8 --cov trader trader
+
+after_success: coveralls

@@ -13,7 +13,7 @@ app:
 
 devpi:
   image: python:2.7.9
-  volumes: 
+  volumes:
     - .pip-cache:/usr/src/app
   working_dir: /usr/src/app
   command: python -m SimpleHTTPServer 8000
@@ -26,4 +26,4 @@ deps:
     - .:/usr/src/app
     - .pip-cache:/var/cache/pip
   working_dir: /usr/src/app
-  command: pip wheel --find-links=/var/cache/pip --wheel-dir=/var/cache/pip --no-deps -r requirements.txt 
+  command: pip wheel --find-links=/var/cache/pip --wheel-dir=/var/cache/pip --no-deps -r requirements.txt
