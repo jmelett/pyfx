@@ -1,6 +1,6 @@
 from coolfig import Settings, Value, types, providers
 
-from .strategy import SMAStrategy
+from .strategy.sma_example import SMAStrategy
 
 
 class TraderSettings(Settings):
