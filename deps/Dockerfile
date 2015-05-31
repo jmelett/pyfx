@@ -20,4 +20,4 @@ RUN cd /src/ta-lib && \
 	cd / && \
 	rm -rf /src
 
-RUN pip install -U pip wheel
+RUN pip install -U pip wheel Cython==0.22 numpy==1.9.2

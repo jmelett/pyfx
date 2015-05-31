@@ -7,9 +7,8 @@ app:
     - .pip-cache:/var/cache/pip
   environment:
     - PYTHONPATH=.
-    - TRADER_ACCESS_TOKEN=myoandaaccesstoken
-    - TRADER_ACCOUNT_ID=myoandaaccountid
-  entrypoint: ./cmd.py
+  env_file: .env
+  entrypoint: ./_cmd.py
 
 devpi:
   image: python:2.7.9

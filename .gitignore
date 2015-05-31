@@ -1,6 +1,7 @@
 env
 .idea/
 *.pyc
+/.env
 /.pip-cache
 /build
 /dist

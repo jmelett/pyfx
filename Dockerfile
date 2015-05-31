@@ -20,6 +20,8 @@ RUN cd /src/ta-lib && \
 	cd / && \
 	rm -rf /src
 
+RUN pip install -U pip
+
 # Install the app
 COPY requirements.txt /usr/src/app/requirements.txt
 RUN pip install --no-index --trusted-host pi.dev --find-links=http://pi.dev -r requirements.txt
