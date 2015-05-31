@@ -2,6 +2,12 @@
 pyFxTrader
 ==========
 
+.. image:: https://travis-ci.org/jmelett/pyFxTrader.svg
+    :target: https://travis-ci.org/jmelett/pyFxTrader
+
+.. image:: https://img.shields.io/github/license/mashape/apistatus.svg
+    :target: https://github.com/jmelett/pyFxTrader/blob/master/LICENSE
+
 
 Scope
 =====
