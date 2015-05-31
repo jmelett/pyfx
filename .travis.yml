@@ -7,9 +7,10 @@ cache:
 
 python:
   - "2.7"
-  - "3.3"
-  - "3.4"
-  - "nightly"
+# Currenly TA-lib does not work with py3
+#  - "3.3"
+#  - "3.4"
+#  - "nightly"
 
 install:
   - "[ -d $HOME/opt ] || tar -xzvf deps/ta-lib.tar.gz"
