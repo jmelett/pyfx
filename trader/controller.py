@@ -119,6 +119,12 @@ class Controller(ThreadedControllerMixin, ControllerBase):
     def execute_tick(self, tick):
         operations = [strategy.tick(tick) for strategy in self._strategies]
         operations = [op for op in operations if op]
+
         # TODO: Add risk management/operations consolidation here
+
+        # Limit by % of the whole protfolio when buying/selling
+        # Per instrument only one open position
+        # handling exit signals
+
         for operation in itertools.chain(*operations):
             operation(self._broker)

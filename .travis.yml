@@ -1,11 +1,20 @@
 language: python
 
+cache:
+  directories:
+    - $HOME/.cache/pip/wheels
+    - $HOME/opt
+
 python:
   - "2.7"
   - "3.3"
   - "3.4"
+  - "nightly"
 
 install:
+  - "[ -d $HOME/opt ] || tar -xzvf deps/ta-lib.tar.gz"
+  - "[ -d $HOME/opt ] || { cd ta-lib && ./configure --prefix=$HOME/opt && make && make install && touch installed-on-travis && cd ..; }"
+  - pip install --upgrade pip
   - pip install -r requirements-test.txt
   - pip install coveralls
 

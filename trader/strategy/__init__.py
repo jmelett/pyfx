@@ -11,6 +11,10 @@ log = Logger('pyFxTrader')
 class TestStrategy(object):
     def __init__(self, instrument):
         self.instrument = instrument
+        self._is_open = False
+
+    def open(self):
+        self._is_open = True
 
     def start(self, broker, tick):
         self.broker = broker

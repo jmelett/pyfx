@@ -13,4 +13,4 @@ requests==2.4.0
 click==4.0
 coolfig==0.2.0
 six==1.9.0
-https://github.com/mrjbq7/ta-lib/archive/master.zip
+https://github.com/GaretJax/ta-lib/archive/master.zip
