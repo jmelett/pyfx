@@ -8,8 +8,12 @@ class StrategyBase(object):
         self.instrument = instrument
         self._is_open = False
 
-    def open(self):
+    def open(self, order_id):
         self._is_open = True
+        self._order_id = order_id
+
+    def close(self):
+        self._is_open = False
 
     def start(self, broker, tick):
         self.broker = broker

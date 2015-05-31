@@ -4,6 +4,7 @@ import six
 from logbook import Logger
 import talib
 
+from ..operations import Close, OpenBuy, OpenSell
 from . import StrategyBase
 
 log = Logger('pyFxTrader')
@@ -48,16 +49,26 @@ class SMAStrategy(StrategyBase):
             df = df.append(response)[-self.buffer_size:]
             self.feeds[tf] = self._convert_data(df, tf)
 
+        if has_changes:
+            if self._is_open:
+                # Searching for ExitSignal
+                return [Close(self, self.instrument, 10), ]
+            else:
+                # Searching for OpenSignal
+                return [OpenBuy(self, self.instrument, 10), ]
+
     def _convert_data(self, feed, timeframe):
         # Get SMAs
         feed['sma_fast'] = talib.SMA(feed['closeMid'].values, SMA_FAST)
         feed['sma_slow'] = talib.SMA(feed['closeMid'].values, SMA_SLOW)
+
         # Get MACD
         # Note: talib.MACD() returns (macd, signal, hist)
         _, _, macd_array = talib.MACD(feed['closeMid'].values,
                                       fastperiod=12,
                                       slowperiod=26,
                                       signalperiod=9)
+
         # Get RSI
         feed['rsi'] = talib.RSI(feed['closeMid'].values)
         return feed
