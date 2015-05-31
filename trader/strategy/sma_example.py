@@ -19,9 +19,6 @@ class SmaStrategy(Strategy):
     STRATEGY_NAME = 'SmaCrossingStrategy'
     TIMEFRAMES = ['H1', 'H2']
 
-    def __init__(self, *args, **kwargs):
-        super(SmaStrategy, self).__init__(*args, **kwargs)
-
     def _convert_data(self, feed, timeframe):
         if not feed:
             return None

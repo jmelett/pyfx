@@ -1,6 +1,8 @@
 from datetime import timedelta
 
+import pandas as pd
 from logbook import Logger
+from dateutil import parser as date_parse
 
 from .lib.rfc3339 import datetimetostr, parse_datetime
 
@@ -8,9 +10,35 @@ log = Logger('pyFxTrader')
 
 
 class OandaBacktestBroker(object):
+    default_history_df_columns = [
+        'time',
+        'volume',
+        'complete',
+        'openMid',
+        'closeMid',
+        'highMid',
+        'lowMid',
+    ]
+
     def __init__(self, api, initial_balance):
         self._api = api
         self._current_balance = self._initial_balance = initial_balance
+
+    def get_history(self, *args, **kwargs):
+        columns = kwargs.pop('columns', self.default_history_df_columns)
+        assert 'time' in columns
+        response = self._api.get_history(*args, **kwargs)
+
+        if response['candles']:
+            df = pd.DataFrame(
+                data=response['candles'],
+                columns=columns,
+            )
+            df['time'] = df['time'].map(date_parse.parse)
+            df = df.set_index(['time'])
+            return df
+        else:
+            return pd.DataFrame()
 
     def get_account_balance(self):
         return self._current_balance

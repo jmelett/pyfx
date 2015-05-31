@@ -115,7 +115,44 @@ class ThreadedControllerMixin(object):
         self._main_loop.join()
 
 
-class Controller(ThreadedControllerMixin, ControllerBase):
+class SingleThreadedControllerMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(SingleThreadedControllerMixin, self).__init__(*args, **kwargs)
+        self._stop_requested = False
+        self._is_running = False
+
+    def run(self):
+        raise NotImplementedError()
+
+    def run_until_stopped(self):
+        def stop(signal, frame):
+            self.stop()
+        signal.signal(signal.SIGINT, lambda signal, frame: self.stop())
+
+        self._is_running = True
+        try:
+            clock = iter(self._clock)
+            self.initialize(next(clock))
+            for tick in clock:
+                if self._stop_requested:
+                    break
+                self.execute_tick(tick)
+                if self._stop_requested:
+                    break
+            else:
+                click.secho('The clock stopped ticking', fg='yellow')
+        finally:
+            self._is_running = False
+
+    def is_running(self):
+        return self._is_running
+
+    def stop(self):
+        click.secho('\nSIGINT received, shutting down cleanly...', fg='yellow')
+        self._stop_requested = True
+
+
+class Controller(SingleThreadedControllerMixin, ControllerBase):
     def execute_tick(self, tick):
         operations = [strategy.tick(tick) for strategy in self._strategies]
         operations = [op for op in operations if op]
