@@ -4,7 +4,7 @@ import six
 from logbook import Logger
 import talib
 
-from ..operations import Close, OpenBuy, OpenSell
+from ..operations import Close, OpenBuy
 from . import StrategyBase
 
 log = Logger('pyFxTrader')
