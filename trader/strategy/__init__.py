@@ -1,4 +1,4 @@
-from collections import deque, OrderedDict
+from collections import OrderedDict
 
 import six
 from logbook import Logger
@@ -44,7 +44,6 @@ class SMAStrategy(StartegyBase):
             )
 
     def tick(self, tick):
-        print tick
         has_changes = False
         for tf, df in six.iteritems(self.feeds):
             response = self.broker.get_history(
@@ -64,3 +63,6 @@ class SMAStrategy(StartegyBase):
 
             # TODO:
             # self._convert_data(...)
+
+        if has_changes:
+            pass
