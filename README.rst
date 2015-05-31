@@ -2,6 +2,8 @@
 pyFxTrader
 ==========
 
+.. image:: https://travis-ci.org/jmelett/pyFxTrader.svg
+    :target: https://travis-ci.org/jmelett/pyFxTrader
 
 Scope
 =====
