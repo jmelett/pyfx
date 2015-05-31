@@ -24,25 +24,21 @@ Strategy
 Indicators
 ----------
 
-Currently implemented are
-
-* MACD
-* SMA
-* RSI
-
-Many others can also be used from `TA-Lib` or `numpy`.
+Besides building your own, you can also use a wide range of indicators via `TA-Lib` or `numpy`.
 
 
 Timeframes
 ----------
 
-* OANDA supports a wide range of timeframes. You can find all supported values [here](http://developer.oanda.com/rest-live/rates/#retrieveInstrumentHistory).
+* OANDA supports most commonly used timeframes. You can find all supported values here_.
+.. _here: http://developer.oanda.com/rest-live/rates/#retrieveInstrumentHistory.
 
 
 TODO
 ====
 
-* Add Matplot/Plot.ly support. See also following [tutorial](http://www.randalolson.com/2014/06/28/how-to-make-beautiful-data-visualizations-in-python-with-matplotlib/).
+* Add Matplot/Plot.ly support. See also following tutorial_.
+.. _tutorial: http://www.randalolson.com/2014/06/28/how-to-make-beautiful-data-visualizations-in-python-with-matplotlib/.
 * Implement proxy class for backtesting, which will first check if data is 
   available locally and only then fetch/save via API.
 * Implement usage of ETags to reduce traffic/latency.
