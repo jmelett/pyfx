@@ -46,9 +46,11 @@ TODO
 Installation
 ============
 
+::
+
     git clone git@github.com:jmelett/pyFxTrader.git
     cd pyFxTrader
     virtualenv env
     source env/bin/activate
-    pip install -r requirements.txt
-    python pyFxTrader/app.py -h
+    pip install -e .
+    ./cmd.py -h
