@@ -12,6 +12,11 @@ python:
 #  - "3.4"
 #  - "nightly"
 
+env:
+  global:
+    - TA_INCLUDE_PATH=$HOME/opt/include
+    - TA_LIBRARY_PATH=$HOME/opt/lib
+
 install:
   - "[ -d $HOME/opt ] || tar -xzvf deps/ta-lib.tar.gz"
   - "[ -d $HOME/opt ] || { cd ta-lib && ./configure --prefix=$HOME/opt && make && make install && touch installed-on-travis && cd ..; }"
