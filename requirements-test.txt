@@ -1,5 +1,16 @@
 -r requirements.txt
 
 pytest
+py>=1.4.27
+pluggy>=0.3.0,<0.4.0
+
 pytest-cov
+coverage>=3.7.1
+cov-core>=1.14.0
+
 pytest-flake8
+flake8>=2.3
+pytest-cache
+pyflakes>= 0.8.1,<0.9
+pep8>=1.5.7,!=1.6.0,!=1.6.1,!=1.6.2
+mccabe>=0.2.1,<0.4
