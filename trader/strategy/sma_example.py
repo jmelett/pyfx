@@ -51,11 +51,11 @@ class SMAStrategy(StrategyBase):
 
         if has_changes:
             if self._is_open:
-                # Searching for ExitSignal
-                return [Close(self, self.instrument, 10), ]
+                # Searching for CloseSignal
+                return self._find_close_signal()
             else:
                 # Searching for OpenSignal
-                return [OpenBuy(self, self.instrument, 10), ]
+                return self._find_open_signal()
 
     def _convert_data(self, feed, timeframe):
         # Get SMAs
@@ -72,3 +72,9 @@ class SMAStrategy(StrategyBase):
         # Get RSI
         feed['rsi'] = talib.RSI(feed['closeMid'].values)
         return feed
+
+    def _find_open_signal(self):
+        return [OpenBuy(self, self.instrument, 10), ]
+
+    def _find_close_signal(self):
+        return [Close(self, self.instrument, 10), ]
