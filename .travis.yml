@@ -19,9 +19,9 @@ env:
 
 install:
   - "[ -d $HOME/opt/include/ta-lib ] || tar -xzvf deps/ta-lib.tar.gz"
-  - "[ -d $HOME/opt/include/ta-lib ] || { cd ta-lib && ./configure --prefix=$HOME/opt && make && make install && touch installed-on-travis && cd ..; }"
+  - "[ -d $HOME/opt/include/ta-lib ] || { cd ta-lib && ./configure --prefix=$HOME/opt && make && make install && cd ..; }"
   - pip install --upgrade pip
-  - pip install -r requirements-test.txt
+  - pip install --no-deps -r requirements-test.txt
   - pip install coveralls
 
 script: py.test --flake8 --cov trader trader
