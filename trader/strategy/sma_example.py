@@ -33,6 +33,7 @@ class SMAStrategy(StrategyBase):
     def tick(self, tick):
         print tick
         has_changes = False
+        new_candles = OrderedDict()
         for tf, df in six.iteritems(self.feeds):
             response = self.broker.get_history(
                 instrument=self.instrument,
@@ -46,6 +47,7 @@ class SMAStrategy(StrategyBase):
                 continue
 
             has_changes = True
+            new_candles[tf] = response
             df = df.append(response)[-self.buffer_size:]
             self.feeds[tf] = self._convert_data(df, tf)
 
@@ -55,7 +57,7 @@ class SMAStrategy(StrategyBase):
                 return self._find_close_signal()
             else:
                 # Searching for OpenSignal
-                return self._find_open_signal()
+                return self._find_open_signal(new_candles)
 
     def _convert_data(self, feed, timeframe):
         # Get SMAs
@@ -64,7 +66,7 @@ class SMAStrategy(StrategyBase):
 
         # Get MACD
         # Note: talib.MACD() returns (macd, signal, hist)
-        _, _, macd_array = talib.MACD(feed['closeMid'].values,
+        _, _, feed['macd_hist'] = talib.MACD(feed['closeMid'].values,
                                       fastperiod=12,
                                       slowperiod=26,
                                       signalperiod=9)
@@ -73,7 +75,7 @@ class SMAStrategy(StrategyBase):
         feed['rsi'] = talib.RSI(feed['closeMid'].values)
         return feed
 
-    def _find_open_signal(self):
+    def _find_open_signal(self, new_candles):
         return [OpenBuy(self, self.instrument, 10), ]
 
     def _find_close_signal(self):
