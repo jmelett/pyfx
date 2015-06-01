@@ -1,13 +1,11 @@
-import time
+from collections import OrderedDict
 
+import six
 from logbook import Logger
-import numpy as np
-import pandas as pd
 import talib
-import matplotlib.pyplot as plt
 
-from . import Strategy
-
+from ..operations import Close, OpenBuy
+from . import StrategyBase
 
 log = Logger('pyFxTrader')
 
@@ -15,60 +13,68 @@ SMA_FAST = 10
 SMA_SLOW = 50
 
 
-class SmaStrategy(Strategy):
-    STRATEGY_NAME = 'SmaCrossingStrategy'
-    TIMEFRAMES = ['H1', 'H2']
+class SMAStrategy(StrategyBase):
+    timeframes = ['M5', 'M15']
+    buffer_size = 300
+
+    def start(self, broker, tick):
+        super(SMAStrategy, self).start(broker, tick)
+
+        self.feeds = OrderedDict()
+        for tf in self.timeframes:
+            self.feeds[tf] = broker.get_history(
+                instrument=self.instrument,
+                granularity=tf,
+                end=tick.isoformat(),
+                candleFormat='midpoint',
+                count=self.buffer_size,
+            )
+
+    def tick(self, tick):
+        print tick
+        has_changes = False
+        for tf, df in six.iteritems(self.feeds):
+            response = self.broker.get_history(
+                instrument=self.instrument,
+                granularity=tf,
+                candleFormat='midpoint',
+                includeFirst='false',
+                end=tick.isoformat(),
+                start=df.iloc[-1].name.isoformat(),
+            )
+            if response.empty:
+                continue
+
+            has_changes = True
+            df = df.append(response)[-self.buffer_size:]
+            self.feeds[tf] = self._convert_data(df, tf)
+
+        if has_changes:
+            if self._is_open:
+                # Searching for CloseSignal
+                return self._find_close_signal()
+            else:
+                # Searching for OpenSignal
+                return self._find_open_signal()
 
     def _convert_data(self, feed, timeframe):
-        if not feed:
-            return None
+        # Get SMAs
+        feed['sma_fast'] = talib.SMA(feed['closeMid'].values, SMA_FAST)
+        feed['sma_slow'] = talib.SMA(feed['closeMid'].values, SMA_SLOW)
 
-        close_array = []
-        open_array = []
-        volume_array = []
-        time_array = []
-        time_formatted_array = []
-        for item in feed:
-            close_array.append(item['closeMid'])
-            open_array.append(item['openMid'])
-            volume_array.append(float(item['volume']))
-            time_array.append(item['time'])
-            time_formatted_array.append(item['time'][11:16])
-
-        close_array = np.asarray(close_array)
-        volume_array = np.asarray(volume_array)
-
-        sma_fast_array = talib.SMA(np.array(close_array), 4)
-        sma_slow_array = talib.SMA(np.array(close_array), 9)
-        _, _, macd_array = talib.MACD(close_array,  # macd, signal, hist
+        # Get MACD
+        # Note: talib.MACD() returns (macd, signal, hist)
+        _, _, macd_array = talib.MACD(feed['closeMid'].values,
                                       fastperiod=12,
                                       slowperiod=26,
                                       signalperiod=9)
-        rsi_array = talib.RSI(np.array(close_array))
 
-        ret_df = pd.DataFrame(data={
-            'time': time_formatted_array,
-            'time_full': time_array,
-            'close': close_array,
-            'open': open_array,
-            'volume': volume_array,
-            'sma_fast': sma_fast_array,
-            'sma_slow': sma_slow_array,
-            'macd': macd_array,
-            'rsi': rsi_array,
-        })
-        self.pretty_plot(ret_df, timeframe, self.STRATEGY_NAME)
-        return ret_df
+        # Get RSI
+        feed['rsi'] = talib.RSI(feed['closeMid'].values)
+        return feed
 
-    def pretty_plot(self, df, timeframe, title):
-        df.tail(30).plot(x='time',
-                         y=['close', 'sma_fast', 'sma_slow', ])
-        plt.suptitle('%s/%s (%s), %s' % (
-            self.instrument, timeframe, title, time.strftime("%c")))
-        plt.savefig(u'plots/{0:s}_{1:s}'.format(self.instrument, timeframe))
+    def _find_open_signal(self):
+        return [OpenBuy(self, self.instrument, 10), ]
 
-    def recalc(self, backtest=False):
-        has_new_data = self._update_buffer()
-        if has_new_data:
-            pass  # (re)calculate open/exit signals
-        return has_new_data
+    def _find_close_signal(self):
+        return [Close(self, self.instrument, 10), ]

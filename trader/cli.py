@@ -15,7 +15,7 @@ from .conf import settings
               type=InstrumentParamType())
 def main(instruments):
     """
-    Algortihmic trading tool.
+    Algorithmic trading tool.
     """
     # XXX: Currently only backtesting is supported
     api = oandapy.API(
@@ -26,8 +26,8 @@ def main(instruments):
         api=api, initial_balance=decimal.Decimal(1000))
 
     clock = SimulatedClock(
-        start=datetime(2015, 01, 01, 12, 00),
-        stop=datetime(2015, 01, 01, 13, 00),
+        start=datetime(2015, 05, 29, 12, 00),
+        stop=datetime(2015, 05, 29, 15, 00),
         interval=settings.CLOCK_INTERVAL,
     )
 
