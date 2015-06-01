@@ -67,9 +67,9 @@ class SMAStrategy(StrategyBase):
         # Get MACD
         # Note: talib.MACD() returns (macd, signal, hist)
         _, _, feed['macd_hist'] = talib.MACD(feed['closeMid'].values,
-                                      fastperiod=12,
-                                      slowperiod=26,
-                                      signalperiod=9)
+                                             fastperiod=12,
+                                             slowperiod=26,
+                                             signalperiod=9)
 
         # Get RSI
         feed['rsi'] = talib.RSI(feed['closeMid'].values)
