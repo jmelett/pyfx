@@ -15,7 +15,7 @@ from .conf import settings
               type=InstrumentParamType())
 def main(instruments):
     """
-    Algortihmic trading tool.
+    Algorithmic trading tool.
     """
     # XXX: Currently only backtesting is supported
     api = oandapy.API(
