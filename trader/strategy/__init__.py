@@ -1,8 +1,3 @@
-from logbook import Logger
-
-log = Logger('pyFxTrader')
-
-
 class StrategyBase(object):
     def __init__(self, instrument):
         self.instrument = instrument
@@ -14,6 +9,10 @@ class StrategyBase(object):
 
     def close(self):
         self._is_open = False
+
+    @property
+    def is_open(self):
+        return self._is_open
 
     def start(self, broker, tick):
         self.broker = broker

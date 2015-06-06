@@ -1,20 +1,18 @@
 from collections import OrderedDict
 
 import six
-from logbook import Logger
 import talib
 
 from ..operations import Close, OpenBuy
 from . import StrategyBase
 
-log = Logger('pyFxTrader')
-
-SMA_FAST = 10
-SMA_SLOW = 50
-
 
 class SMAStrategy(StrategyBase):
     timeframes = ['M5', 'M15']
+    sma_intervals = {
+        'sma_fast': 10,
+        'sma_slow': 50,
+    }
     buffer_size = 300
 
     def start(self, broker, tick):
@@ -31,7 +29,6 @@ class SMAStrategy(StrategyBase):
             )
 
     def tick(self, tick):
-        print tick
         has_changes = False
         new_candles = OrderedDict()
         for tf, df in six.iteritems(self.feeds):
@@ -49,23 +46,23 @@ class SMAStrategy(StrategyBase):
             has_changes = True
             new_candles[tf] = response
             df = df.append(response)[-self.buffer_size:]
-            self.feeds[tf] = self._convert_data(df, tf)
+            self.feeds[tf] = self.annotate_data(df, tf)
 
         if has_changes:
-            if self._is_open:
+            if self.is_open:
                 # Searching for CloseSignal
-                return self._find_close_signal()
+                return self.find_close_signal()
             else:
                 # Searching for OpenSignal
-                return self._find_open_signal(new_candles)
+                return self.find_open_signal(new_candles)
 
-    def _convert_data(self, feed, timeframe):
+    def annotate_data(self, feed, timeframe):
         # Get SMAs
-        feed['sma_fast'] = talib.SMA(feed['closeMid'].values, SMA_FAST)
-        feed['sma_slow'] = talib.SMA(feed['closeMid'].values, SMA_SLOW)
+        for k, v in six.iteritems(self.sma_intervals):
+            feed[k] = talib.SMA(feed['closeMid'].values, v)
 
         # Get MACD
-        # Note: talib.MACD() returns (macd, signal, hist)
+        # NOTE: talib.MACD() returns (macd, signal, hist)
         _, _, feed['macd_hist'] = talib.MACD(feed['closeMid'].values,
                                              fastperiod=12,
                                              slowperiod=26,
@@ -75,8 +72,12 @@ class SMAStrategy(StrategyBase):
         feed['rsi'] = talib.RSI(feed['closeMid'].values)
         return feed
 
-    def _find_open_signal(self, new_candles):
-        return [OpenBuy(self, self.instrument, 10), ]
+    def find_open_signal(self, new_candles):
+        return [
+            OpenBuy(self, self.instrument, 10),
+        ]
 
-    def _find_close_signal(self):
-        return [Close(self, self.instrument, 10), ]
+    def find_close_signal(self):
+        return [
+            Close(self, self.instrument, 10),
+        ]
