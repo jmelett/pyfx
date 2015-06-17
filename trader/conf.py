@@ -10,5 +10,9 @@ class TraderSettings(Settings):
     STRATEGY = Value(types.dottedpath, default=SMAStrategy)
     CLOCK_INTERVAL = Value(int, default=30)
 
+    # Strategy specific
+    MYSTRATEGY_SMA_FAST = Value(int, default=10)
+    MYSTRATEGY_SMA_SLOW = Value(int, default=20)
+
 
 settings = TraderSettings(providers.EnvConfig(prefix='TRADER_'))
