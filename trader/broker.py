@@ -29,7 +29,6 @@ class OandaBrokerBase(object):
                 columns=columns,
             )
             df['time'] = df['time'].map(date_parse.parse)
-            df = df.set_index(['time'])
             return df
         else:
             return pd.DataFrame()

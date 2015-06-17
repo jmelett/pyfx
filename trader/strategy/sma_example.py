@@ -38,7 +38,7 @@ class SMAStrategy(StrategyBase):
                 candleFormat='midpoint',
                 includeFirst='false',
                 end=tick.isoformat(),
-                start=df.iloc[-1].name.isoformat(),
+                start=df.iloc[-1].time.isoformat(),
             )
             if response.empty:
                 continue

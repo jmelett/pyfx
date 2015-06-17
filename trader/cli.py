@@ -25,9 +25,10 @@ def main(instruments):
     broker = OandaBacktestBroker(
         api=api, initial_balance=decimal.Decimal(1000))
 
+    # Oanda 20:00, Local: 22:00, DailyFx: 16:00
     clock = SimulatedClock(
-        start=datetime(2015, 05, 29, 12, 00),
-        stop=datetime(2015, 05, 29, 15, 00),
+        start=datetime(2015, 6, 8, 16, 00),
+        stop=datetime(2015, 6, 8, 21, 00),
         interval=settings.CLOCK_INTERVAL,
     )
 
