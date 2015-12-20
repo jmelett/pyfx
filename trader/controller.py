@@ -1,11 +1,16 @@
+import multiprocessing
+
 import os
 import threading
-import itertools
 import signal
+import logging
 from datetime import datetime, timedelta
 from time import sleep
 
 import click
+
+
+log = logging.getLogger('pyFx')
 
 
 class IntervalClock(object):
@@ -20,6 +25,8 @@ class IntervalClock(object):
 
 class SimulatedClock(object):
     def __init__(self, start, stop, interval):
+        from app_conf import settings
+        interval = settings.CLOCK_INTERVAL
         self.start = start
         self.stop = stop
         self.interval = timedelta(seconds=interval)
@@ -37,10 +44,12 @@ class ControllerBase(object):
     for each clock tick. How exactly this is implemented is deferred to the
     concrete subclass.
     """
-    def __init__(self, clock, broker, strategies):
+
+    def __init__(self, clock, broker, portfolio, strategies):
         self._clock = clock
         self._broker = broker
         self._strategies = strategies
+        self._portfolio = portfolio
 
     def initialize(self, tick):
         for strategy in self._strategies:
@@ -127,8 +136,8 @@ class SingleThreadedControllerMixin(object):
     def run_until_stopped(self):
         def stop(signal, frame):
             self.stop()
-        signal.signal(signal.SIGINT, lambda signal, frame: self.stop())
 
+        signal.signal(signal.SIGINT, lambda signal, frame: self.stop())
         self._is_running = True
         try:
             clock = iter(self._clock)
@@ -154,14 +163,13 @@ class SingleThreadedControllerMixin(object):
 
 class Controller(SingleThreadedControllerMixin, ControllerBase):
     def execute_tick(self, tick):
+        # Broker needs to know the current tick for backtesting & logging
+        # TODO Solve in a more elegant way
+        self._broker.set_current_tick(tick)
+
         operations = [strategy.tick(tick) for strategy in self._strategies]
         operations = [op for op in operations if op]
 
-        # TODO: Add risk management/operations consolidation here
+        # This will execute the new operations (and further required tasks)
+        self._portfolio.run_operations(operations, self._strategies)
 
-        # Limit by % of the whole protfolio when buying/selling
-        # Per instrument only one open position
-        # handling exit signals
-
-        for operation in itertools.chain(*operations):
-            operation(self._broker)

@@ -1,5 +1,6 @@
 import json
 import requests
+import logging
 
 """ OANDA API wrapper for OANDA's REST API """
 
@@ -7,6 +8,9 @@ import requests
 Parameters that need to be embedded in the API url just need to be passed as a keyword argument.
 E.g. oandapy_instance.get_instruments(instruments="EUR_USD")
 """
+
+logging.getLogger("requests").setLevel(logging.WARNING)
+
 class EndpointsMixin(object):
 
     """Rates"""
@@ -265,7 +269,7 @@ class API(EndpointsMixin, object):
 
 """HTTPS Streaming"""
 
-class Streamer():
+class Streamer(object):
     """ Provides functionality for HTTPS Streaming
     Docs: http://developer.oanda.com/docs/v1/stream/#rates-streaming
     """

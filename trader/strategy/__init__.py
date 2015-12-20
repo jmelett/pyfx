@@ -1,21 +1,31 @@
+# -*- coding: utf-8 -*-
+
 class StrategyBase(object):
     def __init__(self, instrument):
         self.instrument = instrument
-        self._is_open = False
+        self.positions = []
 
-    def open(self, order_id):
-        self._is_open = True
-        self._order_id = order_id
+        if self.current_tick_timeframe and not self.current_tick_timeframe in self.timeframes:
+            raise Exception('Current timeframe needs to be part of timeframes list')
 
-    def close(self):
-        self._is_open = False
+
+    def open_position(self, position):
+        self.positions.append(position)
+        return True
+
+    def close_position(self, position):
+        self.positions.remove(position)
+        return True
 
     @property
     def is_open(self):
-        return self._is_open
+        for p in self.positions:
+            if p.is_open:
+                return True
+        return False
 
     def start(self, broker, tick):
         self.broker = broker
 
     def tick(self, tick):
-        raise NotImplementedError()
+        self.last_tick = tick.isoformat()
