@@ -1,6 +1,9 @@
-env
-.idea/
 *.pyc
+nohup.out
+
+/env
+/.env*
+/.idea
 /.pip-cache
 /build
 /dist
@@ -13,4 +16,5 @@ env
 
 /tmp
 /plots
+/logs
 /trader/strategy/algos

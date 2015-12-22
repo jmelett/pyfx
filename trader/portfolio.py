@@ -6,8 +6,6 @@ import itertools
 import time
 import logging
 
-import click
-
 from .app_conf import settings
 from .utils import assert_decimal
 
@@ -256,6 +254,7 @@ class Portfolio(object):
             'HK33_CHF': 2631.57,
             'UK100_CHF': 8333,
         }
+        # (margin * leverage) / base = units
         base_home_price = currency_switch_dict.get(
             "{}_{}".format(base_currency, home_currency),
             None
