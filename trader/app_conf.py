@@ -11,6 +11,29 @@ class TraderSettings(Settings):
     CLOCK_INTERVAL = Value(int, default=30)
     BACKTEST_START = Value(str, default='2015.07.15')
     BACKTEST_END = Value(str, default='2015.07.16')
+    BACKTEST_STORES_DIR = Value(str, default='tmp/stores')
+    GET_INCOMPLETE_CANDLES = True
+
+    DEFAULT_INSTRUMENTS = Value(types.list(str), default=[
+        'AUD_USD',
+        'AUD_JPY',
+        'EUR_USD',
+        'EUR_GBP',
+        'GBP_USD',
+        'NZD_JPY',
+        'USD_JPY',
+        'GBP_CHF',
+        'USD_CHF',
+        'USD_CAD',
+        'EUR_CHF',
+        'DE30_EUR',
+        'JP225_USD',
+        'UK100_GBP',
+        'HK33_HKD',
+        'BCO_USD',
+        'XAG_USD',
+        'XAU_USD',
+    ])
 
     # Portfolio
     DEFAULT_POSITION_MARGIN = Value(float, 1000.00)

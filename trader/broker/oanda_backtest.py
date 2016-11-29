@@ -1,13 +1,15 @@
+import logging
+import os
 from collections import OrderedDict
 from decimal import Decimal, getcontext
 from datetime import timedelta
 from dateutil import parser as date_parse
-import logging
 
 import pandas as pd
 import pytz
 
 from .base import OandaBrokerBase
+from ..app_conf import settings
 from ..portfolio import Position
 
 
@@ -67,46 +69,73 @@ class OandaBacktestBroker(OandaBrokerBase):
 
     def init_backtest(self, start, end, strategies):
         self.feeds = OrderedDict()
-        print "Initialising backtest buffer.."
+        log.info('Initialising backtest buffer..')
+        stores_dir = settings.BACKTEST_STORES_DIR
+        if not os.path.exists(stores_dir):
+            os.makedirs(stores_dir)
         for strategy in strategies:
             instrument = strategy.instrument
+
+            store_fname = (
+                '{}/history-{}-{}-{}-{}.h5'
+                .format(
+                    stores_dir,
+                    strategy.__class__.__name__,
+                    instrument,
+                    start.strftime('%s'),
+                    end.strftime('%s'),
+                )
+            )
+            store = pd.HDFStore(store_fname, mode='a')
             timeframes = strategy.timeframes
             tf_dict = OrderedDict()
 
             for tf in timeframes:
-                next_start = None
-                df = pd.DataFrame(
-                    columns=self.default_history_dataframe_columns)
+                if tf in store:
+                    source = 'HDFStore'
+                    df = store[tf]
+                    log.debug('loading data from HDFstore {}/{}'.format(store.filename, tf))
+                else:
+                    source = 'API'
+                    next_start = None
+                    df = pd.DataFrame(
+                        columns=self.default_history_dataframe_columns)
 
-                while True:
-                    if not next_start:
-                        # TODO Make sure first candle get loaded without hack
-                        next_start = (start - timedelta(seconds=1)).isoformat()
-                    data = super(OandaBacktestBroker, self).get_history(
-                        instrument=instrument,
-                        granularity=tf,
-                        candleFormat='bidask',
-                        start=next_start,
-                        includeFirst='false',
-                        count=2000,
-                    )
-                    if data.empty:
-                        break
-                    last_tick = data.tail(1).time.values[0].replace(
-                        tzinfo=pytz.utc)
-                    df = df.append(data, ignore_index=True)
-                    if last_tick >= end and len(df) > 0:
-                        df = df[df.time <= end]
-                        break
-                    next_start = last_tick.isoformat()
+                    while True:
+                        if not next_start:
+                            # TODO Make sure first candle get loaded without hack
+                            next_start = (start - timedelta(seconds=1)).isoformat()
+                        data = super(OandaBacktestBroker, self).get_history(
+                            instrument=instrument,
+                            granularity=tf,
+                            candleFormat='bidask',
+                            start=next_start,
+                            includeFirst='false',
+                            count=2000,
+                        )
+                        if data.empty:
+                            break
+                        last_tick = data.tail(1).time.values[0].replace(
+                            tzinfo=pytz.utc)
+                        df = df.append(data, ignore_index=True)
+                        if last_tick >= end and len(df) > 0:
+                            df = df[df.time <= end]
+                            break
+                        next_start = last_tick.isoformat()
+
+                    log.debug('saving data to HDFstore {}/{}'.format(store.filename, tf))
+                    df.to_hdf(store, tf)
+
                 tf_dict[tf] = df
-                print "Loaded {} candles for {}/{} ".format(
-                    len(df), strategy.instrument, tf)
+                log.info("loaded {} candles for {}/{} (from {})".format(
+                    len(df), strategy.instrument, tf, source))
+
+            store.close()
             self.feeds[instrument] = tf_dict
+
         return True
 
     def get_history(self, *args, **kwargs):
-
         timeframe_delta = {
             'H2': timedelta(minutes=120),
             'H1': timedelta(minutes=60),
@@ -135,7 +164,7 @@ class OandaBacktestBroker(OandaBrokerBase):
 
         # Adding current candle via M5 df
         if include_current and timeframe:
-            if timeframe == 'H1' or timeframe == 'H2':
+            if timeframe in {'H1', 'H2'}:
                 current_df = self.feeds[instrument]['M5']
                 current_df = current_df[(current_df.time > start) & (current_df.time < end)]
                 current_row = current_df.tail(1)

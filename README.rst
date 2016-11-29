@@ -44,15 +44,32 @@ TODO
 * Implement usage of ETags to reduce traffic/latency.
 * Prepare Makefile.
 
+Requirements
+============
+
+    sudo apt-get install virtualenv python-setuptools libssl-dev::
+    
+    sudo apt-get build-dep python-matplotlib
+
+Additionally get TA-Lib from http://www.ta-lib.org/hdr_dw.html
 
 Installation
 ============
 
 ::
 
-    git clone git@github.com:jmelett/pyFxTrader.git
-    cd pyFxTrader
+    git clone git@github.com:jmelett/pyfx.git
+    cd pyfx
     virtualenv env
     source env/bin/activate
     pip install -e .
-    ./cmd.py -h
+    envdir .my_envs python ./_cmd.py -h
+
+Troubleshooting
+===============
+
+In case you encounter the error ```ImportError: libta_lib.so.0: cannot open shared object file: No such file or directory```
+
+Following command\* will do the trick: ```export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH```
+
+\* See also http://stackoverflow.com/questions/11813279/python-wrapper-for-ta-lib-import-failure

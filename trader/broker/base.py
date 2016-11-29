@@ -1,3 +1,4 @@
+import logging
 from dateutil import parser as date_parse
 from time import sleep
 
@@ -6,6 +7,8 @@ import pandas as pd
 from requests.packages.urllib3.exceptions import ProtocolError
 
 from ..lib.oandapy import OandaError
+
+log = logging.getLogger('pyFx')
 
 
 class OandaBrokerBase(object):
@@ -42,7 +45,6 @@ class OandaBrokerBase(object):
             columns = ('time',) + tuple(columns)
         while True:
             try:
-                response = None
                 response = self._api.get_history(*args, **kwargs)
                 if response and response.get('candles'):
                     df = pd.DataFrame(
@@ -56,11 +58,11 @@ class OandaBrokerBase(object):
                     return df
                 else:
                     return pd.DataFrame()
-            except (ValueError) as e:
-                print "[!] Error when loading candles for {}: {}".format(kwargs['instrument'], e)
+            except ValueError as e:
+                log.warning("[!] Error when loading candles for {}: {}".format(kwargs['instrument'], e))
                 return pd.DataFrame()
             except (ProtocolError, OandaError, SysCallError) as e:
-                print "[!] Connection error ({0:s}). Reconnecting...".format(e)
+                log.warning("[!] Connection error ({0:s}). Reconnecting...".format(e))
             sleep(3)
 
     def get_price(self, instrument):

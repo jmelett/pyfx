@@ -25,8 +25,6 @@ class IntervalClock(object):
 
 class SimulatedClock(object):
     def __init__(self, start, stop, interval):
-        from app_conf import settings
-        interval = settings.CLOCK_INTERVAL
         self.start = start
         self.stop = stop
         self.interval = timedelta(seconds=interval)
@@ -71,59 +69,6 @@ class ControllerBase(object):
         raise NotImplementedError()
 
 
-class ThreadedControllerMixin(object):
-    def __init__(self, *args, **kwargs):
-        super(ThreadedControllerMixin, self).__init__(*args, **kwargs)
-        self._stop_requested = False
-        self._main_loop = None
-        self._is_running = False
-        self._thread_lock = threading.Condition()
-
-    def run(self):
-        assert self._main_loop is None
-        self._main_loop = threading.Thread(target=self._run)
-        self._main_loop.start()
-
-    def run_until_stopped(self):
-        self.run()
-        while self.is_running():
-            try:
-                sleep(1024)
-            except KeyboardInterrupt:
-                if self.is_running():
-                    self.stop()
-                    break
-        else:
-            click.secho('The clock stopped ticking', fg='yellow')
-
-    def is_running(self):
-        return self._is_running
-
-    def _run(self):
-        self._is_running = True
-        try:
-            self._thread_lock.acquire()
-            clock = iter(self._clock)
-            self.initialize(next(clock))
-            for tick in clock:
-                if self._stop_requested:
-                    break
-                self.execute_tick(tick)
-                if self._stop_requested:
-                    break
-            else:
-                self._is_running = False
-                os.kill(os.getpid(), signal.SIGINT)
-        finally:
-            self._is_running = False
-            self._thread_lock.notify()
-
-    def stop(self):
-        click.secho('\nSIGINT received, shutting down cleanly...', fg='yellow')
-        self._stop_requested = True
-        self._main_loop.join()
-
-
 class SingleThreadedControllerMixin(object):
     def __init__(self, *args, **kwargs):
         super(SingleThreadedControllerMixin, self).__init__(*args, **kwargs)
@@ -149,7 +94,7 @@ class SingleThreadedControllerMixin(object):
                 if self._stop_requested:
                     break
             else:
-                click.secho('The clock stopped ticking', fg='yellow')
+                log.info('The clock stopped ticking')
         finally:
             self._is_running = False
 
@@ -157,7 +102,7 @@ class SingleThreadedControllerMixin(object):
         return self._is_running
 
     def stop(self):
-        click.secho('\nSIGINT received, shutting down cleanly...', fg='yellow')
+        log.warning('\nSIGINT received, shutting down cleanly...')
         self._stop_requested = True
 
 

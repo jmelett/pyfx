@@ -1,4 +1,8 @@
+import logging
+
 import click
+
+log = logging.getLogger('pyFx')
 
 
 class Instrument(object):
@@ -15,7 +19,7 @@ class Instrument(object):
         return self.__str__()
 
     def load(self, broker):
-        print "[+] Loading details for {}".format(self.__str__())
+        log.info('Loading details for {}'.format(self.__str__()))
         ret = broker.get_instrument_detail(self.__str__())
         if ret and 'instruments' in ret:
             for meh in ret['instruments']:

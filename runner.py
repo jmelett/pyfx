@@ -9,7 +9,6 @@ def run_that_show(start, end):
                       "python", "_cmd.py",
                       "-s", str(start),
                       "-e", str(end),
-                      "-i", "EUR_USD",
                       ])
 
 
@@ -17,10 +16,13 @@ def run_that_show(start, end):
 # START = "2015-W47"
 # END = "2015-W48"
 #START = "2015.06.07"
-#END = "2015.12.20"
+#END = "2015.11.22"
 START = '2015.01.03'
 END = '2015.06.07'
-MAX_DAYS = 28
+MAX_DAYS = 14
+
+# start_dt = datetime.datetime.strptime(START + '-0', "%Y-W%W-%w")
+# end_dt = datetime.datetime.strptime(END + '-0', "%Y-W%W-%w")
 
 start_dt = parser.parse(START)
 end_dt = parser.parse(END)
@@ -35,6 +37,6 @@ while not is_done:
     if not (end_dt - start_dt).days > MAX_DAYS:
         is_done = True
     start_dt = end_
-    time.sleep(60)
+    time.sleep(30)
 
     # print start_dt, end_dt, (end_dt - start_dt).days

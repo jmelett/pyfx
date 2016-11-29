@@ -6,6 +6,9 @@ ENV DEBIAN_FRONTEND noninteractive
 #RUN apt-get update
 #RUN apt-get install -y \
 
+# Install HDF5 for PyTables
+RUN apt-get install libhdf5-serial-dev
+
 # Prepare the environment
 ENV DOCKER 1
 RUN mkdir -p /usr/src/app

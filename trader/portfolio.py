@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import csv
+import os
+from collections import OrderedDict
 from decimal import Decimal
 import itertools
 import time
@@ -207,22 +209,25 @@ class Portfolio(object):
         return True
 
     def write_to_csv(self, position):
-        f = open(self.csv_out_file, 'at')
-        try:
-            writer = csv.writer(f)
-            writer.writerow((position.open_time,
-                             position.close_time,
-                             position.instrument,
-                             position.side,
-                             position.open_price,
-                             position.close_price,
-                             position.profit_cash,
-                             position.profit_pips,
-                             position.max_profit_pips,
-                             position.max_loss_pips)
-                            )
-        finally:
-            f.close()
+        add_headings = not os.path.isfile(self.csv_out_file)
+        with open(self.csv_out_file, 'at') as fh:
+            items = OrderedDict(
+                open_time=position.open_time,
+                close_time=position.close_time,
+                instrument=position.instrument,
+                side=position.side,
+                open_price=position.open_price,
+                close_price=position.close_price,
+                profit_cash=position.profit_cash,
+                profit_pips=position.profit_pips,
+                max_profit_pips=position.max_profit_pips,
+                max_loss_pips=position.max_loss_pips,
+            )
+
+            writer = csv.writer(fh)
+            if add_headings:
+                writer.writerow(items.keys())
+            writer.writerow(items.values())
 
     def get_overall_profit(self):
         total_profit = 0
@@ -255,14 +260,27 @@ class Portfolio(object):
             'UK100_CHF': 8333,
         }
         # (margin * leverage) / base = units
-        base_home_price = currency_switch_dict.get(
-            "{}_{}".format(base_currency, home_currency),
-            None
-        )
+        currency_pair = "{}_{}".format(base_currency, home_currency)
+        base_home_price = currency_switch_dict.get(currency_pair, None)
 
+        position_size = 10
         if base_home_price:
-            return int((margin * margin_ratio / (base_home_price)))
-        return 10
+            position_size = int((margin * margin_ratio / (base_home_price)))
+
+        multiplier_dict = {
+            'EUR_USD' : 2,
+            'EUR_GBP' : 2,
+            'GBP_USD' : 2,
+            'NZD_JPY' : 2,
+            'USD_JPY' : 2,
+            'GBP_CHF' : 2,
+            'USD_CHF' : 2,
+            'USD_CAD' : 2,
+            'EUR_CHF' : 2,
+        }
+
+        position_size = position_size * multiplier_dict.get(currency_pair, 1)
+        return position_size
 
     def calculate_stop_loss(self, instrument, side):
         stop_loss_dict = {
@@ -270,7 +288,6 @@ class Portfolio(object):
             'EUR_USD': 20,
             'UK100_GBP': 9,
             'NZD_JPY': 15,
-
             'BCO_USD': 40,
             'AUD_USD': 9,
             'DE30_EUR': 40,
@@ -292,24 +309,24 @@ class Portfolio(object):
         take_profit_dict = {
             'AUD_USD': 27,
             'AUD_JPY': 8,
+            'EUR_CHF': 10,
             'EUR_USD': 12,
-            'EUR_GBP': 6,
+            'EUR_GBP': 12,
+            'GBP_CHF': 12,
             'GBP_USD': 15,
             'NZD_JPY': 8,
+            'USD_CAD': 12,
+            'USD_CHF': 15,
             'USD_JPY': 8,
-            'GBP_CHF': 12,
-            'USD_CHF': 0,
-            'USD_CAD': 6,
-            'EUR_CHF': 10,
-            'DE30_EUR': 0,
-            'JP225_USD': 25,
-            'UK100_GBP': 0,
-            'HK33_HKD': 9,
             'BCO_USD': 25,
+            'DE30_EUR': 20,
+            'HK33_HKD': 9,
+            'JP225_USD': 25,
+            'UK100_GBP': 20,
             'XAG_USD': 340,
             'XAU_USD': 400,
         }
-        take_profit_pips = float(take_profit_dict.get(str(instrument), 10))
+        take_profit_pips = float(take_profit_dict.get(str(instrument), 20))
         price = self.broker.get_price(instrument)
         if price:
             if side == 'buy':
