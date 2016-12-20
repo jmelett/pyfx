@@ -117,7 +117,7 @@ def main(instruments, mode, log_level, debug, step, start_date=None,
 
         # Oanda 20:00, Local: 22:00, DailyFx: 16:00
         clock_interval = settings.CLOCK_INTERVAL
-        log.info('Starting simulated clock with interval {}'.format(clock_interval))
+        log.info('Starting simulated clock with interval {} seconds'.format(clock_interval))
         clock = SimulatedClock(
             start=BACKTEST_START,
             stop=BACKTEST_END,

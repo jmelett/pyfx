@@ -1,6 +1,7 @@
 *.pyc
 nohup.out
 
+.DS_Store
 /env
 /.env*
 /.idea
@@ -18,3 +19,4 @@ nohup.out
 /plots
 /logs
 /trader/strategy/algos
+/metrics

@@ -12,6 +12,10 @@ log = logging.getLogger('pyFx')
 
 
 class OandaBrokerBase(object):
+    '''
+    Base class for broker objects. Not to be instantiated by itself, always as
+    part of a child class.
+    '''
     default_history_dataframe_columns = (
         'time',
         'volume',
@@ -39,6 +43,9 @@ class OandaBrokerBase(object):
         self._tick = tick
 
     def get_history(self, *args, **kwargs):
+        '''
+        Query the API for a given instrument and timeframe and return its df.
+        '''
         columns = kwargs.pop('columns', self.default_history_dataframe_columns)
         include_current = kwargs.pop('include_current', False)
         if 'time' not in columns:
@@ -52,14 +59,18 @@ class OandaBrokerBase(object):
                         columns=columns,
                     )
                     df['time'] = df['time'].map(date_parse.parse)
-                    df['closeMid'] = df[['closeBid','closeAsk']].mean(axis=1)
+                    df['closeMid'] = df.loc[:,('closeBid','closeAsk')].mean(axis=1)
+                    df.index = df['time']
                     if not include_current:
                         df = df[df.complete == True]
                     return df
                 else:
+                    log.info("no history for {} and timeframe {}".format(
+                             kwargs['instrument']), kwargs['granularity'])
                     return pd.DataFrame()
             except ValueError as e:
-                log.warning("[!] Error when loading candles for {}: {}".format(kwargs['instrument'], e))
+                log.warning("[!] Error when loading candles for {}: {}".format(
+                            kwargs['instrument'], e))
                 return pd.DataFrame()
             except (ProtocolError, OandaError, SysCallError) as e:
                 log.warning("[!] Connection error ({0:s}). Reconnecting...".format(e))

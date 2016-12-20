@@ -5,8 +5,8 @@ class StrategyBase(object):
         self.instrument = instrument
         self.positions = []
 
-        if self.current_tick_timeframe and not self.current_tick_timeframe in self.timeframes:
-            raise Exception('Current timeframe needs to be part of timeframes list')
+        if not self.tick_tf in self.timeframes:
+            raise Exception('Tick timeframe needs to be part of timeframes list.')
 
 
     def open_position(self, position):
