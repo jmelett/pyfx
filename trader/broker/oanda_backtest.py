@@ -88,6 +88,20 @@ class OandaBacktestBroker(OandaBrokerBase):
         M5_candles.loc[:,'tf'] = 'M5'
         M5_candles.complete = False
 
+        # drop redundant candles
+        # edge case for ticks between XX:00:00 - XX:04:59
+        if tf == 'H1':
+            start, rate = 0, 1
+        elif tf == 'H2':
+            start, rate = 1, 2
+        else:
+            start, rate = 24, 24
+        for i in xrange(start, 24, rate):
+            init_time = '{}:55'.format(i)
+            final_time = '{}:59'.format(i)
+            to_drop = M5_candles.between_time(init_time,final_time).index
+            M5_candles = M5_candles.drop(to_drop)
+
         df = pd.concat([df, M5_candles])
         df = df.sort_index(kind='mergesort')
 

@@ -30,7 +30,8 @@ class NewStrategy(StrategyBase):
     }
     mode = 'backtest'  # or set to 'live'
     tick_tf = 'M5'  # keep it at 'M5' until later versions
-    timeframes = ['M5', 'M15', 'H1', 'H2']
+    timeframes = ['M5', 'M15', 'H1', 'H2'] # TF's must be in ascending
+                                           # time order
     buffer_size = 300
     sma_intervals = {
         'sma_fast': 10,
@@ -38,22 +39,13 @@ class NewStrategy(StrategyBase):
     }
 
     def start(self, broker, tick):
-        self.check_timeframes()
+        
         super(NewStrategy, self).start(broker, tick)
         self.feeds = OrderedDict()
         self.last_tick = tick
         self.last_ticks = {tf: self.last_tick for tf in self.timeframes}
         self.last_candles = {tf: self.last_tick - self.time_delta for tf in
                              self.timeframes}
-
-    def check_timeframes(self):
-        """ Ensure timeframes are in ascending order """
-        tf_order = ['M5', 'M15', 'H1', 'H2']
-        timeframes = [tf for tf in tf_order if tf in self.timeframes]
-
-        if self.timeframes != timeframes:
-            raise Exception("Timeframes list in strategy must be in ascending "
-                            "order in length.")
 
     def _tick_tf_time_check(self, tick):
         """Check if enough ticks have passed for new tick_tf candle or new
@@ -130,9 +122,9 @@ class NewStrategy(StrategyBase):
             for tf in self.timeframes:
                 if self._tf_time_check(tick, tf):
                     # Query buffer_size of candles
-                    start = tick - (
-                        (self.buffer_size + 1) * self.timeframe_delta[tf]
-                    ) + self.time_delta
+                    start = tick - \
+                        ((self.buffer_size + 1) * self.timeframe_delta[tf]) + \
+                        self.time_delta
                     df = self.broker.get_history(
                         instrument=self.instrument,
                         granularity=tf,
@@ -181,22 +173,22 @@ class NewStrategy(StrategyBase):
         return feed
 
     def find_open_signal(self, feeds, tick):
-        """Open a position at time tick."""
+        """ Open a position at time tick """
         if not tick:
             raise ValueError('Tick value is required for this strategy.')
 
         for key in feeds:
-            price = feeds[key].tail(1).closeAsk
-            price = Decimal(str(price.values[0]))
+            price = feeds[key].iloc[-1].closeAsk
+            price = Decimal(str(price))
             return [Open(self, side='buy', price=price)]
 
     def find_close_signal(self, feeds, tick):
-        """Close a position at time tick, if a positon exists."""
+        """ Close a position at time tick, if a positon exists """
         for key in feeds:
-            price = feeds[key].tail(1)
+            price = feeds[key].iloc[-1]
 
             for p in self.positions:
                 p.set_profit_loss(price)
-            price = feeds[key].tail(1).closeBid
-            price = Decimal(str(price.values[0]))
+            price = feeds[key].iloc[-1].closeBid
+            price = Decimal(str(price))
             return [Close(self, price=price)]
