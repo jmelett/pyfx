@@ -370,15 +370,15 @@ class Position(object):
         # Max = Max Profit
         # Both are initialised with the opening price
         if self.side == 'buy':
-            if self.max_profit < Decimal(str(price.highBid.values[0])):
-                self.max_profit = Decimal(str(price.highBid.values[0]))
-            if self.max_loss > Decimal(str(price.lowAsk.values[0])):
-                self.max_loss = Decimal(str(price.lowAsk.values[0]))
+            if self.max_profit < Decimal(str(price.highBid)):
+                self.max_profit = Decimal(str(price.highBid))
+            if self.max_loss > Decimal(str(price.lowAsk)):
+                self.max_loss = Decimal(str(price.lowAsk))
         else:
-            if self.max_profit > Decimal(str(price.lowBid.values[0])):
-                self.max_profit = Decimal(str(price.lowBid.values[0]))
-            if self.max_loss < Decimal(str(price.highAsk.values[0])):
-                self.max_loss = Decimal(str(price.highAsk.values[0]))
+            if self.max_profit > Decimal(str(price.lowBid)):
+                self.max_profit = Decimal(str(price.lowBid))
+            if self.max_loss < Decimal(str(price.highAsk)):
+                self.max_loss = Decimal(str(price.highAsk))
         self.max_profit_pips = round(abs(
             float(float(self.max_profit) - float(self.open_price)) / float(
                 str((self.instrument.pip)))), 1)
